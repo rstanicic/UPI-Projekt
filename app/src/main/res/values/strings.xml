@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">EvidencijaClanova</string>
+    <string name="open">Open menu</string>
+    <string name="close">Close menu</string>
+</resources>
