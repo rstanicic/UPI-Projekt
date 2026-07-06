@@ -73,6 +73,15 @@ class DetaljiClanaActivity : AppCompatActivity() {
 
         btnSpremi.setOnClickListener {
             val novaLozinka = etLozinka.text.toString().trim()
+
+            val ime = etIme.text.toString().trim()
+            val prezime = etPrezime.text.toString().trim()
+
+            if (ime.isEmpty() || prezime.isEmpty()) {
+                Toast.makeText(this, "Ime i prezime su obavezni.", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
             val spol = when (rgSpol.checkedRadioButtonId) {
                 R.id.rb_muski -> "M"
                 R.id.rb_zenski -> "Ž"
@@ -80,8 +89,8 @@ class DetaljiClanaActivity : AppCompatActivity() {
             }
 
             val updatedClan = clan.copy(
-                ime = etIme.text.toString().trim(),
-                prezime = etPrezime.text.toString().trim(),
+                ime = ime,
+                prezime = prezime,
                 oib = etOib.text.toString().trim(),
                 datumRodjenja = etDatum.text.toString().trim(),
                 telefon = etTelefon.text.toString().trim(),
