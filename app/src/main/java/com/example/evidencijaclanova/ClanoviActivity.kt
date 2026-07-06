@@ -196,6 +196,7 @@ class ClanoviActivity : AppCompatActivity() {
     }
 
     private fun primijeniFilter() {
+        // Filtrira članove prema odabranom statusu i tekstu pretrage.
         val filtrirani = sviClanovi.filter { clan ->
             val odgovaraPretrazi = "${clan.ime} ${clan.prezime}"
                 .contains(trenutnaPretraga, ignoreCase = true)
