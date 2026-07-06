@@ -2,4 +2,7 @@
     <string name="app_name">EvidencijaClanova</string>
     <string name="open">Open menu</string>
     <string name="close">Close menu</string>
+
+    <string name="search_hint">Pretraži članove</string>
+    <string name="empty_members">Nema registriranih članova</string>
 </resources>
