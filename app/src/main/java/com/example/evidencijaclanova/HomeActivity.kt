@@ -26,10 +26,16 @@ class HomeActivity : AppCompatActivity() {
         val navView = findViewById<NavigationView>(R.id.nav_view)
         val bottomNav = findViewById<BottomNavigationView>(R.id.bottom_nav)
         val btnClanovi = findViewById<MaterialButton>(R.id.btn_clanovi)
-        val tvUkupno = findViewById<TextView>(R.id.tv_ukupno)
-        val tvAktivni = findViewById<TextView>(R.id.tv_aktivni)
 
         setSupportActionBar(toolbar)
+
+        // Prikaz uloge u toolbaru
+        if (Session.isAdmin) {
+            supportActionBar?.subtitle = "⚙️ Administrator"
+        } else {
+            val ime = Session.currentClan?.ime ?: ""
+            if (ime.isNotEmpty()) supportActionBar?.subtitle = "👤 $ime"
+        }
 
         val toggle = ActionBarDrawerToggle(
             this, drawerLayout, toolbar,
@@ -41,6 +47,7 @@ class HomeActivity : AppCompatActivity() {
         toolbar.setOnMenuItemClickListener { item ->
             when (item.itemId) {
                 R.id.action_logout -> {
+                    Session.odjavi()
                     val intent = Intent(this, MainActivity::class.java)
                     intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                     startActivity(intent)
@@ -56,6 +63,7 @@ class HomeActivity : AppCompatActivity() {
                 R.id.nav_clanovi -> startActivity(Intent(this, ClanoviActivity::class.java))
                 R.id.nav_postavke -> startActivity(Intent(this, PostavkeActivity::class.java))
                 R.id.nav_logout -> {
+                    Session.odjavi()
                     val intent = Intent(this, MainActivity::class.java)
                     intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                     startActivity(intent)

@@ -11,6 +11,11 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var db: AppDatabase
 
+    companion object {
+        const val ADMIN_EMAIL = "admin@admin.com"
+        const val ADMIN_PASSWORD = "admin123"
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -26,13 +31,28 @@ class MainActivity : AppCompatActivity() {
             val email = emailField.text.toString().trim()
             val password = passwordField.text.toString().trim()
 
-            val clan = db.clanDao().login(email, password)
-            if (clan != null) {
-                val intent = Intent(this, HomeActivity::class.java)
-                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                startActivity(intent)
-            } else {
-                Toast.makeText(this, "Krivi email ili lozinka", Toast.LENGTH_SHORT).show()
+            when {
+                // Admin login — hardkodirani račun
+                email == ADMIN_EMAIL && password == ADMIN_PASSWORD -> {
+                    Session.isAdmin = true
+                    Session.currentClan = null
+                    val intent = Intent(this, HomeActivity::class.java)
+                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    startActivity(intent)
+                }
+                // Regularni član
+                else -> {
+                    val clan = db.clanDao().login(email, password)
+                    if (clan != null) {
+                        Session.isAdmin = false
+                        Session.currentClan = clan
+                        val intent = Intent(this, HomeActivity::class.java)
+                        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                        startActivity(intent)
+                    } else {
+                        Toast.makeText(this, "Krivi email ili lozinka", Toast.LENGTH_SHORT).show()
+                    }
+                }
             }
         }
 

@@ -40,20 +40,36 @@ class ClanAdapter(
             else -> "👤"
         }
 
-        // Boja kartice
+        // Boja kartice prema aktivnosti
         holder.card.setCardBackgroundColor(
             if (clan.aktivan) Color.parseColor("#E8F5E9")
             else Color.parseColor("#FFEBEE")
         )
 
-        // Checkbox samo prikazuje status, ne mijenja ga
+        // Checkbox — samo admin može mijenjati aktivnost direktno u listi
         holder.aktivan.setOnCheckedChangeListener(null)
         holder.aktivan.isChecked = clan.aktivan
         holder.aktivan.text = if (clan.aktivan) "Aktivan" else "Neaktivan"
-        holder.aktivan.isClickable = false
-        holder.aktivan.isFocusable = false
 
-        // Klik na cijelu karticu otvara detalje
+        if (Session.isAdmin) {
+            holder.aktivan.isClickable = true
+            holder.aktivan.isFocusable = true
+            holder.aktivan.setOnCheckedChangeListener { _, isChecked ->
+                clan.aktivan = isChecked
+                holder.aktivan.text = if (isChecked) "Aktivan" else "Neaktivan"
+                holder.card.setCardBackgroundColor(
+                    if (isChecked) Color.parseColor("#E8F5E9")
+                    else Color.parseColor("#FFEBEE")
+                )
+                onStatusChanged(clan)
+            }
+        } else {
+            holder.aktivan.isClickable = false
+            holder.aktivan.isFocusable = false
+            holder.aktivan.setOnCheckedChangeListener(null)
+        }
+
+        // Klik na karticu otvara detalje
         holder.itemView.setOnClickListener {
             val intent = Intent(holder.itemView.context, DetaljiClanaActivity::class.java)
             intent.putExtra("clan_id", clan.id)

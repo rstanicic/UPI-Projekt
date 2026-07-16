@@ -7,6 +7,7 @@ import android.graphics.Paint
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.view.View
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.drawerlayout.widget.DrawerLayout
@@ -51,12 +52,23 @@ class ClanoviActivity : AppCompatActivity() {
 
         setSupportActionBar(toolbar)
 
+        // Prikaz uloge u toolbaru
+        if (Session.isAdmin) {
+            supportActionBar?.subtitle = "⚙️ Administrator"
+        } else {
+            val ime = Session.currentClan?.ime ?: ""
+            if (ime.isNotEmpty()) supportActionBar?.subtitle = "👤 $ime"
+        }
+
         val toggle = ActionBarDrawerToggle(
             this, drawerLayout, toolbar,
             R.string.open, R.string.close
         )
         drawerLayout.addDrawerListener(toggle)
         toggle.syncState()
+
+        // Gumb "Dodaj" samo za admina
+        btnDodaj.visibility = if (Session.isAdmin) View.VISIBLE else View.GONE
 
         sviClanovi.addAll(db.clanDao().getAll())
         prikazaniClanovi.addAll(sviClanovi)
@@ -100,57 +112,61 @@ class ClanoviActivity : AppCompatActivity() {
             primijeniFilter()
         }
 
-        val itemTouchHelper = ItemTouchHelper(object :
-            ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
+        // Swipe za brisanje — samo za admina
+        if (Session.isAdmin) {
+            val itemTouchHelper = ItemTouchHelper(object :
+                ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
 
-            override fun onMove(
-                recyclerView: RecyclerView,
-                viewHolder: RecyclerView.ViewHolder,
-                target: RecyclerView.ViewHolder
-            ) = false
+                override fun onMove(
+                    recyclerView: RecyclerView,
+                    viewHolder: RecyclerView.ViewHolder,
+                    target: RecyclerView.ViewHolder
+                ) = false
 
-            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                val position = viewHolder.adapterPosition
-                val obrisaniClan = prikazaniClanovi[position]
+                override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                    val position = viewHolder.adapterPosition
+                    val obrisaniClan = prikazaniClanovi[position]
 
-                db.clanDao().delete(obrisaniClan.id)
-                sviClanovi.remove(obrisaniClan)
-                prikazaniClanovi.removeAt(position)
-                adapter.notifyItemRemoved(position)
+                    db.clanDao().delete(obrisaniClan.id)
+                    sviClanovi.remove(obrisaniClan)
+                    prikazaniClanovi.removeAt(position)
+                    adapter.notifyItemRemoved(position)
 
-                Snackbar.make(recyclerView, "Član ${obrisaniClan.ime} obrisan", Snackbar.LENGTH_LONG)
-                    .setAction("PONIŠTI") {
-                        db.clanDao().insert(obrisaniClan)
-                        sviClanovi.add(obrisaniClan)
-                        primijeniFilter()
-                    }.show()
-            }
+                    Snackbar.make(recyclerView, "Član ${obrisaniClan.ime} obrisan", Snackbar.LENGTH_LONG)
+                        .setAction("PONIŠTI") {
+                            db.clanDao().insert(obrisaniClan)
+                            sviClanovi.add(obrisaniClan)
+                            primijeniFilter()
+                        }.show()
+                }
 
-            override fun onChildDraw(
-                c: Canvas, recyclerView: RecyclerView,
-                viewHolder: RecyclerView.ViewHolder,
-                dX: Float, dY: Float, actionState: Int, isCurrentlyActive: Boolean
-            ) {
-                val paint = Paint()
-                paint.color = Color.RED
-                val itemView = viewHolder.itemView
-                c.drawRect(
-                    itemView.right + dX, itemView.top.toFloat(),
-                    itemView.right.toFloat(), itemView.bottom.toFloat(), paint
-                )
-                val textPaint = Paint()
-                textPaint.color = Color.WHITE
-                textPaint.textSize = 40f
-                c.drawText("🗑 Obriši", itemView.right - 220f,
-                    itemView.top + (itemView.height / 2f) + 15f, textPaint)
-                super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
-            }
-        })
-        itemTouchHelper.attachToRecyclerView(recyclerView)
+                override fun onChildDraw(
+                    c: Canvas, recyclerView: RecyclerView,
+                    viewHolder: RecyclerView.ViewHolder,
+                    dX: Float, dY: Float, actionState: Int, isCurrentlyActive: Boolean
+                ) {
+                    val paint = Paint()
+                    paint.color = Color.RED
+                    val itemView = viewHolder.itemView
+                    c.drawRect(
+                        itemView.right + dX, itemView.top.toFloat(),
+                        itemView.right.toFloat(), itemView.bottom.toFloat(), paint
+                    )
+                    val textPaint = Paint()
+                    textPaint.color = Color.WHITE
+                    textPaint.textSize = 40f
+                    c.drawText("🗑 Obriši", itemView.right - 220f,
+                        itemView.top + (itemView.height / 2f) + 15f, textPaint)
+                    super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
+                }
+            })
+            itemTouchHelper.attachToRecyclerView(recyclerView)
+        }
 
         toolbar.setOnMenuItemClickListener { item ->
             when (item.itemId) {
                 R.id.action_logout -> {
+                    Session.odjavi()
                     val intent = Intent(this, MainActivity::class.java)
                     intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                     startActivity(intent)
@@ -166,6 +182,7 @@ class ClanoviActivity : AppCompatActivity() {
                 R.id.nav_clanovi -> { }
                 R.id.nav_postavke -> startActivity(Intent(this, PostavkeActivity::class.java))
                 R.id.nav_logout -> {
+                    Session.odjavi()
                     val intent = Intent(this, MainActivity::class.java)
                     intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                     startActivity(intent)
@@ -196,7 +213,6 @@ class ClanoviActivity : AppCompatActivity() {
     }
 
     private fun primijeniFilter() {
-        // Filtrira članove prema odabranom statusu i tekstu pretrage.
         val filtrirani = sviClanovi.filter { clan ->
             val odgovaraPretrazi = "${clan.ime} ${clan.prezime}"
                 .contains(trenutnaPretraga, ignoreCase = true)

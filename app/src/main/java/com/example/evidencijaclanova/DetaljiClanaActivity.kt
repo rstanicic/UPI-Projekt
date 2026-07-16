@@ -1,6 +1,7 @@
 package com.example.evidencijaclanova
 
 import android.os.Bundle
+import android.view.View
 import android.widget.CheckBox
 import android.widget.RadioButton
 import android.widget.RadioGroup
@@ -11,6 +12,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
 
 class DetaljiClanaActivity : AppCompatActivity() {
 
@@ -51,6 +53,7 @@ class DetaljiClanaActivity : AppCompatActivity() {
         val btnSpremi = findViewById<MaterialButton>(R.id.btn_spremi)
         val btnObrisi = findViewById<MaterialButton>(R.id.btn_obrisi)
 
+        // Popunjavanje podataka
         tvAvatar.text = when (clan.spol) {
             "M" -> "👨"
             "Ž" -> "👩"
@@ -71,52 +74,87 @@ class DetaljiClanaActivity : AppCompatActivity() {
         cbAktivan.isChecked = clan.aktivan
         cbClanarina.isChecked = clan.platioClanarinu
 
-        btnSpremi.setOnClickListener {
-            val novaLozinka = etLozinka.text.toString().trim()
+        // Provjera prava pristupa
+        val mozeEditirati = Session.isAdmin || Session.currentClan?.email == clan.email
 
-            val ime = etIme.text.toString().trim()
-            val prezime = etPrezime.text.toString().trim()
+        if (mozeEditirati) {
+            // Admin ili vlasnik profila — sve editabilno
+            toolbar.title = if (Session.isAdmin && Session.currentClan?.email != clan.email)
+                "Uredi člana" else "Moj profil"
 
-            if (ime.isEmpty() || prezime.isEmpty()) {
-                Toast.makeText(this, "Ime i prezime su obavezni.", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
+            btnSpremi.visibility = View.VISIBLE
+            // Admin može brisati, vlasnik ne može sam sebe obrisati
+            btnObrisi.visibility = if (Session.isAdmin) View.VISIBLE else View.GONE
 
-            val spol = when (rgSpol.checkedRadioButtonId) {
-                R.id.rb_muski -> "M"
-                R.id.rb_zenski -> "Ž"
-                else -> clan.spol
-            }
+            btnSpremi.setOnClickListener {
+                val novaLozinka = etLozinka.text.toString().trim()
+                val ime = etIme.text.toString().trim()
+                val prezime = etPrezime.text.toString().trim()
 
-            val updatedClan = clan.copy(
-                ime = ime,
-                prezime = prezime,
-                oib = etOib.text.toString().trim(),
-                datumRodjenja = etDatum.text.toString().trim(),
-                telefon = etTelefon.text.toString().trim(),
-                email = etEmail.text.toString().trim(),
-                lozinka = if (novaLozinka.isNotEmpty()) novaLozinka else clan.lozinka,
-                opis = etOpis.text.toString().trim(),
-                spol = spol,
-                aktivan = cbAktivan.isChecked,
-                platioClanarinu = cbClanarina.isChecked
-            )
-            db.clanDao().update(updatedClan)
-            Toast.makeText(this, "Promjene spremljene!", Toast.LENGTH_SHORT).show()
-            finish()
-        }
-
-        btnObrisi.setOnClickListener {
-            AlertDialog.Builder(this)
-                .setTitle("Obriši člana")
-                .setMessage("Jesi li siguran da želiš obrisati ${clan.ime} ${clan.prezime}?")
-                .setPositiveButton("Obriši") { _, _ ->
-                    db.clanDao().delete(clan.id)
-                    Toast.makeText(this, "Član obrisan", Toast.LENGTH_SHORT).show()
-                    finish()
+                if (ime.isEmpty() || prezime.isEmpty()) {
+                    Toast.makeText(this, "Ime i prezime su obavezni.", Toast.LENGTH_SHORT).show()
+                    return@setOnClickListener
                 }
-                .setNegativeButton("Odustani", null)
-                .show()
+
+                val spol = when (rgSpol.checkedRadioButtonId) {
+                    R.id.rb_muski -> "M"
+                    R.id.rb_zenski -> "Ž"
+                    else -> clan.spol
+                }
+
+                val updatedClan = clan.copy(
+                    ime = ime,
+                    prezime = prezime,
+                    oib = etOib.text.toString().trim(),
+                    datumRodjenja = etDatum.text.toString().trim(),
+                    telefon = etTelefon.text.toString().trim(),
+                    email = etEmail.text.toString().trim(),
+                    lozinka = if (novaLozinka.isNotEmpty()) novaLozinka else clan.lozinka,
+                    opis = etOpis.text.toString().trim(),
+                    spol = spol,
+                    aktivan = cbAktivan.isChecked,
+                    platioClanarinu = cbClanarina.isChecked
+                )
+                db.clanDao().update(updatedClan)
+
+                // Ako je član uredio vlastiti profil, ažuriraj Session
+                if (Session.currentClan?.id == clan.id) {
+                    Session.currentClan = updatedClan
+                }
+
+                Toast.makeText(this, "Promjene spremljene!", Toast.LENGTH_SHORT).show()
+                finish()
+            }
+
+            btnObrisi.setOnClickListener {
+                AlertDialog.Builder(this)
+                    .setTitle("Obriši člana")
+                    .setMessage("Jesi li siguran da želiš obrisati ${clan.ime} ${clan.prezime}?")
+                    .setPositiveButton("Obriši") { _, _ ->
+                        db.clanDao().delete(clan.id)
+                        Toast.makeText(this, "Član obrisan", Toast.LENGTH_SHORT).show()
+                        finish()
+                    }
+                    .setNegativeButton("Odustani", null)
+                    .show()
+            }
+
+        } else {
+            // Obični član gleda tuđi profil — read-only
+            toolbar.title = "${clan.ime} ${clan.prezime}"
+
+            val svaPolja = listOf(etIme, etPrezime, etOib, etDatum, etTelefon, etEmail, etLozinka, etOpis)
+            svaPolja.forEach { it.isEnabled = false }
+            rbMuski.isEnabled = false
+            rbZenski.isEnabled = false
+            cbAktivan.isEnabled = false
+            cbClanarina.isEnabled = false
+
+            // Sakrij lozinku za tuđe profile
+            findViewById<TextInputLayout>(R.id.til_lozinka)?.visibility = View.GONE
+
+            btnSpremi.visibility = View.GONE
+            btnObrisi.visibility = View.GONE
         }
     }
 
