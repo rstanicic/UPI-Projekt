@@ -1,8 +1,8 @@
 package com.example.evidencijaclanova
 
 import android.content.Intent
-import android.graphics.Color
 import android.view.LayoutInflater
+import androidx.core.content.ContextCompat
 import android.view.View
 import android.view.ViewGroup
 import android.widget.CheckBox
@@ -40,10 +40,11 @@ class ClanAdapter(
             else -> "👤"
         }
 
-        // Boja kartice prema aktivnosti
+        // Boja kartice prema aktivnosti (dark mode aware)
+        val context = holder.itemView.context
         holder.card.setCardBackgroundColor(
-            if (clan.aktivan) Color.parseColor("#E8F5E9")
-            else Color.parseColor("#FFEBEE")
+            if (clan.aktivan) ContextCompat.getColor(context, R.color.active_bg)
+            else ContextCompat.getColor(context, R.color.inactive_bg)
         )
 
         // Checkbox — samo admin može mijenjati aktivnost direktno u listi
@@ -58,8 +59,8 @@ class ClanAdapter(
                 clan.aktivan = isChecked
                 holder.aktivan.text = if (isChecked) "Aktivan" else "Neaktivan"
                 holder.card.setCardBackgroundColor(
-                    if (isChecked) Color.parseColor("#E8F5E9")
-                    else Color.parseColor("#FFEBEE")
+                    if (isChecked) ContextCompat.getColor(context, R.color.active_bg)
+                    else ContextCompat.getColor(context, R.color.inactive_bg)
                 )
                 onStatusChanged(clan)
             }

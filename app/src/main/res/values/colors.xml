@@ -10,6 +10,8 @@
     <color name="card">#FFFFFF</color>
     <color name="active_green">#43A047</color>
     <color name="inactive_red">#E53935</color>
+    <color name="active_bg">#E8F5E9</color>
+    <color name="inactive_bg">#FFEBEE</color>
 
     <color name="background_dark">#121212</color>
     <color name="card_dark">#1E1E1E</color>

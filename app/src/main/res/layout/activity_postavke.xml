@@ -81,6 +81,21 @@
                 android:checked="false"
                 android:text="Prikaži neaktivne članove"/>
 
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Izgled"
+                android:textSize="14sp"
+                android:textColor="@color/text_gray"
+                android:layout_marginTop="24dp"
+                android:layout_marginBottom="4dp"/>
+
+            <androidx.appcompat.widget.SwitchCompat
+                android:id="@+id/switch_dark_mode"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Tamni način rada (Dark mode)"/>
+
         </LinearLayout>
 
         <com.google.android.material.bottomnavigation.BottomNavigationView

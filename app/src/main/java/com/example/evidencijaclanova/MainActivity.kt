@@ -22,6 +22,14 @@ class MainActivity : AppCompatActivity() {
 
         db = AppDatabase.getDatabase(this)
 
+        // Ako je korisnik već prijavljen (Session još živi u memoriji), preskoči login
+        if (Session.isAdmin || Session.currentClan != null) {
+            startActivity(Intent(this, PostavkeActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            })
+            return
+        }
+
         val emailField = findViewById<TextInputEditText>(R.id.et_email)
         val passwordField = findViewById<TextInputEditText>(R.id.et_password)
         val loginButton = findViewById<MaterialButton>(R.id.btn_login)
