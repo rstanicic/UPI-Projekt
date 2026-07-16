@@ -25,4 +25,7 @@ interface ClanDao {
 
     @Query("DELETE FROM clanovi WHERE id = :id")
     fun delete(id: Int)
+
+    @Query("SELECT * FROM clanovi WHERE platioClanarinu = 0")
+    fun getNijePlatili(): List<Clan>
 }

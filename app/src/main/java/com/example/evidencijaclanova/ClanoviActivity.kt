@@ -28,6 +28,7 @@ class ClanoviActivity : AppCompatActivity() {
     private lateinit var btnSvi: MaterialButton
     private lateinit var btnAktivni: MaterialButton
     private lateinit var btnNeaktivni: MaterialButton
+    private lateinit var btnNijePlatio: MaterialButton
     private val sviClanovi = mutableListOf<Clan>()
     private val prikazaniClanovi = mutableListOf<Clan>()
     private var trenutniFilter = "svi"
@@ -49,6 +50,7 @@ class ClanoviActivity : AppCompatActivity() {
         btnSvi = findViewById(R.id.btn_svi)
         btnAktivni = findViewById(R.id.btn_aktivni)
         btnNeaktivni = findViewById(R.id.btn_neaktivni)
+        btnNijePlatio = findViewById(R.id.btn_nije_platio)
 
         setSupportActionBar(toolbar)
 
@@ -109,6 +111,11 @@ class ClanoviActivity : AppCompatActivity() {
         btnNeaktivni.setOnClickListener {
             trenutniFilter = "neaktivni"
             postaviAktivniGumb(btnNeaktivni)
+            primijeniFilter()
+        }
+        btnNijePlatio.setOnClickListener {
+            trenutniFilter = "nije_platio"
+            postaviAktivniGumb(btnNijePlatio)
             primijeniFilter()
         }
 
@@ -204,7 +211,7 @@ class ClanoviActivity : AppCompatActivity() {
     }
 
     private fun postaviAktivniGumb(aktivni: MaterialButton) {
-        listOf(btnSvi, btnAktivni, btnNeaktivni).forEach { btn ->
+        listOf(btnSvi, btnAktivni, btnNeaktivni, btnNijePlatio).forEach { btn ->
             btn.setBackgroundColor(Color.TRANSPARENT)
             btn.setTextColor(Color.parseColor("#1565C0"))
         }
@@ -219,6 +226,10 @@ class ClanoviActivity : AppCompatActivity() {
             val odgovaraFilteru = when (trenutniFilter) {
                 "aktivni" -> clan.aktivan
                 "neaktivni" -> !clan.aktivan
+                "nije_platio" -> {
+                    val (status, _) = ClanAdapter.izracunajStatus(clan)
+                    status.startsWith("💔") || status.startsWith("❌") || status.startsWith("⚠️")
+                }
                 else -> true
             }
             odgovaraPretrazi && odgovaraFilteru

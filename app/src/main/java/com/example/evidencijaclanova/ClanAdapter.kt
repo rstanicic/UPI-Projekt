@@ -2,13 +2,15 @@ package com.example.evidencijaclanova
 
 import android.content.Intent
 import android.view.LayoutInflater
-import androidx.core.content.ContextCompat
 import android.view.View
 import android.view.ViewGroup
 import android.widget.CheckBox
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.card.MaterialCardView
+import java.text.SimpleDateFormat
+import java.util.*
 
 class ClanAdapter(
     private val clanovi: MutableList<Clan>,
@@ -19,7 +21,9 @@ class ClanAdapter(
         val card: MaterialCardView = view.findViewById(R.id.card_clan)
         val avatar: TextView = view.findViewById(R.id.tv_avatar)
         val ime: TextView = view.findViewById(R.id.tv_ime)
+        val statusClanarine: TextView = view.findViewById(R.id.tv_status_clanarine)
         val aktivan: CheckBox = view.findViewById(R.id.cb_aktivan)
+        val clanarinaBtn: TextView = view.findViewById(R.id.tv_clanarina_btn)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ClanViewHolder {
@@ -30,6 +34,7 @@ class ClanAdapter(
 
     override fun onBindViewHolder(holder: ClanViewHolder, position: Int) {
         val clan = clanovi[position]
+        val context = holder.itemView.context
 
         holder.ime.text = "${clan.ime} ${clan.prezime}"
 
@@ -40,8 +45,12 @@ class ClanAdapter(
             else -> "👤"
         }
 
+        // Status članarine
+        val (statusTekst, statusBoja) = izracunajStatus(clan)
+        holder.statusClanarine.text = statusTekst
+        holder.statusClanarine.setTextColor(statusBoja)
+
         // Boja kartice prema aktivnosti (dark mode aware)
-        val context = holder.itemView.context
         holder.card.setCardBackgroundColor(
             if (clan.aktivan) ContextCompat.getColor(context, R.color.active_bg)
             else ContextCompat.getColor(context, R.color.inactive_bg)
@@ -72,11 +81,43 @@ class ClanAdapter(
 
         // Klik na karticu otvara detalje
         holder.itemView.setOnClickListener {
-            val intent = Intent(holder.itemView.context, DetaljiClanaActivity::class.java)
+            val intent = Intent(context, DetaljiClanaActivity::class.java)
             intent.putExtra("clan_id", clan.id)
-            holder.itemView.context.startActivity(intent)
+            context.startActivity(intent)
+        }
+
+        // Klik na "💳 Članarina" otvara ClanarinaActivity
+        holder.clanarinaBtn.setOnClickListener {
+            val intent = Intent(context, ClanarinaActivity::class.java)
+            intent.putExtra("clan_id", clan.id)
+            context.startActivity(intent)
         }
     }
 
     override fun getItemCount(): Int = clanovi.size
+
+    companion object {
+        fun izracunajStatus(clan: Clan): Pair<String, Int> {
+            if (!clan.platioClanarinu) return Pair("💔 Nije platio", 0xFFE53935.toInt())
+
+            if (clan.datumIsteka.isNotEmpty()) {
+                return try {
+                    val sdf = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
+                    val istekDatum = sdf.parse(clan.datumIsteka)
+                    val danas = Date()
+                    val razlikaMs = istekDatum!!.time - danas.time
+                    val razlikaDana = razlikaMs / (1000 * 60 * 60 * 24)
+                    when {
+                        razlikaDana < 0 -> Pair("❌ Isteklo", 0xFFE53935.toInt())
+                        razlikaDana < 30 -> Pair("⚠️ Ističe za ${razlikaDana}d", 0xFFFF8F00.toInt())
+                        else -> Pair("✅ Plaćeno do ${clan.datumIsteka}", 0xFF43A047.toInt())
+                    }
+                } catch (e: Exception) {
+                    Pair("✅ Plaćeno", 0xFF43A047.toInt())
+                }
+            }
+
+            return Pair("✅ Plaćeno", 0xFF43A047.toInt())
+        }
+    }
 }

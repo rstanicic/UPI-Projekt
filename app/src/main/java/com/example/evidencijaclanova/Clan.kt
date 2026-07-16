@@ -17,5 +17,10 @@ data class Clan(
     val spol: String = "",
     val opis: String = "",
     var aktivan: Boolean = true,
-    var platioClanarinu: Boolean = false
+    var platioClanarinu: Boolean = false,
+    val tipClanarine: String = "godišnja",
+    val iznosClanarine: Double = 0.0,
+    val datumUplate: String = "",
+    val datumIsteka: String = "",
+    val nacinPlacanja: String = "Gotovina"
 )

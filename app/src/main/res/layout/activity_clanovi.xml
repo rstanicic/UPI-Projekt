@@ -78,6 +78,15 @@
             </LinearLayout>
 
             <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_nije_platio"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="💔 Nije platio / Ističe"
+                android:layout_marginBottom="8dp"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                app:cornerRadius="8dp"/>
+
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_dodaj"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

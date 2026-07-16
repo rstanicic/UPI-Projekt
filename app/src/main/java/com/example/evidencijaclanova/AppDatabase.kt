@@ -5,7 +5,7 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 
-@Database(entities = [Clan::class], version = 3)
+@Database(entities = [Clan::class], version = 5)
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun clanDao(): ClanDao

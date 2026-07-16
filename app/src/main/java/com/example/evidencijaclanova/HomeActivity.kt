@@ -96,6 +96,7 @@ class HomeActivity : AppCompatActivity() {
     private fun osvjeziStatistiku() {
         val tvUkupno = findViewById<TextView>(R.id.tv_ukupno)
         val tvAktivni = findViewById<TextView>(R.id.tv_aktivni)
+        val tvUpozorenje = findViewById<TextView>(R.id.tv_clanarina_upozorenje)
 
         val sviClanovi = db.clanDao().getAll()
         val ukupno = sviClanovi.size
@@ -105,5 +106,18 @@ class HomeActivity : AppCompatActivity() {
 
         tvUkupno.text = "👥 Ukupno članova: $ukupno"
         tvAktivni.text = "✅ Aktivnih: $aktivnih  |  ❌ Neaktivnih: $neaktivnih  |  💰 Platili: $platili"
+
+        // Upozorenje za neplaćene / koji uskoro ističu
+        val problematicni = sviClanovi.count { clan ->
+            val (status, _) = ClanAdapter.izracunajStatus(clan)
+            status.startsWith("💔") || status.startsWith("❌") || status.startsWith("⚠️")
+        }
+        if (problematicni > 0) {
+            tvUpozorenje.visibility = android.view.View.VISIBLE
+            tvUpozorenje.text = "⚠️ $problematicni član(ova) nije platilo ili im uskoro ističe članarina"
+            tvUpozorenje.setTextColor(0xFFFF8F00.toInt())
+        } else {
+            tvUpozorenje.visibility = android.view.View.GONE
+        }
     }
 }

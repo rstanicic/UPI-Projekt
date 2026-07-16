@@ -2,9 +2,11 @@ package com.example.evidencijaclanova
 
 import android.os.Bundle
 import android.view.View
+import android.widget.ArrayAdapter
 import android.widget.CheckBox
 import android.widget.RadioButton
 import android.widget.RadioGroup
+import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
@@ -36,6 +38,7 @@ class DetaljiClanaActivity : AppCompatActivity() {
             return
         }
 
+        // Osnovni podaci
         val tvAvatar = findViewById<TextView>(R.id.tv_avatar)
         val etIme = findViewById<TextInputEditText>(R.id.et_ime)
         val etPrezime = findViewById<TextInputEditText>(R.id.et_prezime)
@@ -53,13 +56,27 @@ class DetaljiClanaActivity : AppCompatActivity() {
         val btnSpremi = findViewById<MaterialButton>(R.id.btn_spremi)
         val btnObrisi = findViewById<MaterialButton>(R.id.btn_obrisi)
 
-        // Popunjavanje podataka
+        // Polja članarine
+        val tvStatusClanarine = findViewById<TextView>(R.id.tv_status_clanarine)
+        val spinnerTip = findViewById<Spinner>(R.id.spinner_tip)
+        val etIznos = findViewById<TextInputEditText>(R.id.et_iznos)
+        val etDatumUplate = findViewById<TextInputEditText>(R.id.et_datum_uplate)
+        val etDatumIsteka = findViewById<TextInputEditText>(R.id.et_datum_isteka)
+        val cbClaarinaPlacena = findViewById<CheckBox>(R.id.cb_clanarina_placena)
+
+        // Spinner za tip članarine
+        val tipovi = listOf("godišnja", "polugodišnja", "mjesečna")
+        val spinnerAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, tipovi)
+        spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        spinnerTip.adapter = spinnerAdapter
+        spinnerTip.setSelection(tipovi.indexOf(clan.tipClanarine).takeIf { it >= 0 } ?: 0)
+
+        // Popuni podatke
         tvAvatar.text = when (clan.spol) {
             "M" -> "👨"
             "Ž" -> "👩"
             else -> "👤"
         }
-
         etIme.setText(clan.ime)
         etPrezime.setText(clan.prezime)
         etOib.setText(clan.oib)
@@ -74,17 +91,42 @@ class DetaljiClanaActivity : AppCompatActivity() {
         cbAktivan.isChecked = clan.aktivan
         cbClanarina.isChecked = clan.platioClanarinu
 
+        // Podaci članarine
+        val (statusTekst, statusBoja) = ClanAdapter.izracunajStatus(clan)
+        tvStatusClanarine.text = statusTekst
+        tvStatusClanarine.setTextColor(statusBoja)
+        etIznos.setText(if (clan.iznosClanarine > 0) clan.iznosClanarine.toString() else "")
+        etDatumUplate.setText(clan.datumUplate)
+        etDatumIsteka.setText(clan.datumIsteka)
+        cbClaarinaPlacena.isChecked = clan.platioClanarinu
+
+        // Sinkronizacija cb_clanarina i cb_clanarina_placena
+        cbClanarina.setOnCheckedChangeListener { _, isChecked ->
+            cbClaarinaPlacena.isChecked = isChecked
+        }
+        cbClaarinaPlacena.setOnCheckedChangeListener { _, isChecked ->
+            cbClanarina.isChecked = isChecked
+        }
+
         // Provjera prava pristupa
         val mozeEditirati = Session.isAdmin || Session.currentClan?.email == clan.email
 
         if (mozeEditirati) {
-            // Admin ili vlasnik profila — sve editabilno
             toolbar.title = if (Session.isAdmin && Session.currentClan?.email != clan.email)
                 "Uredi člana" else "Moj profil"
 
             btnSpremi.visibility = View.VISIBLE
-            // Admin može brisati, vlasnik ne može sam sebe obrisati
             btnObrisi.visibility = if (Session.isAdmin) View.VISIBLE else View.GONE
+
+            // Samo admin može mijenjati podatke članarine
+            if (!Session.isAdmin) {
+                spinnerTip.isEnabled = false
+                etIznos.isEnabled = false
+                etDatumUplate.isEnabled = false
+                etDatumIsteka.isEnabled = false
+                cbClaarinaPlacena.isEnabled = false
+                cbClanarina.isEnabled = false
+            }
 
             btnSpremi.setOnClickListener {
                 val novaLozinka = etLozinka.text.toString().trim()
@@ -102,6 +144,8 @@ class DetaljiClanaActivity : AppCompatActivity() {
                     else -> clan.spol
                 }
 
+                val iznos = etIznos.text.toString().trim().toDoubleOrNull() ?: 0.0
+
                 val updatedClan = clan.copy(
                     ime = ime,
                     prezime = prezime,
@@ -113,11 +157,14 @@ class DetaljiClanaActivity : AppCompatActivity() {
                     opis = etOpis.text.toString().trim(),
                     spol = spol,
                     aktivan = cbAktivan.isChecked,
-                    platioClanarinu = cbClanarina.isChecked
+                    platioClanarinu = cbClaarinaPlacena.isChecked,
+                    tipClanarine = spinnerTip.selectedItem.toString(),
+                    iznosClanarine = iznos,
+                    datumUplate = etDatumUplate.text.toString().trim(),
+                    datumIsteka = etDatumIsteka.text.toString().trim()
                 )
                 db.clanDao().update(updatedClan)
 
-                // Ako je član uredio vlastiti profil, ažuriraj Session
                 if (Session.currentClan?.id == clan.id) {
                     Session.currentClan = updatedClan
                 }
@@ -140,17 +187,18 @@ class DetaljiClanaActivity : AppCompatActivity() {
             }
 
         } else {
-            // Obični član gleda tuđi profil — read-only
+            // Tuđi profil — read-only
             toolbar.title = "${clan.ime} ${clan.prezime}"
 
-            val svaPolja = listOf(etIme, etPrezime, etOib, etDatum, etTelefon, etEmail, etLozinka, etOpis)
+            val svaPolja = listOf(etIme, etPrezime, etOib, etDatum, etTelefon, etEmail, etLozinka, etOpis, etIznos, etDatumUplate, etDatumIsteka)
             svaPolja.forEach { it.isEnabled = false }
             rbMuski.isEnabled = false
             rbZenski.isEnabled = false
             cbAktivan.isEnabled = false
             cbClanarina.isEnabled = false
+            cbClaarinaPlacena.isEnabled = false
+            spinnerTip.isEnabled = false
 
-            // Sakrij lozinku za tuđe profile
             findViewById<TextInputLayout>(R.id.til_lozinka)?.visibility = View.GONE
 
             btnSpremi.visibility = View.GONE
