@@ -2,7 +2,10 @@ package com.example.evidencijaclanova
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
+import android.view.WindowManager
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
@@ -44,21 +47,38 @@ class MainActivity : AppCompatActivity() {
                 email == ADMIN_EMAIL && password == ADMIN_PASSWORD -> {
                     Session.isAdmin = true
                     Session.currentClan = null
+
                     val intent = Intent(this, HomeActivity::class.java)
-                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    intent.flags =
+                        Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+
                     startActivity(intent)
                 }
+
                 // Regularni član
                 else -> {
                     val clan = db.clanDao().login(email, password)
+
                     if (clan != null) {
                         Session.isAdmin = false
                         Session.currentClan = clan
-                        val intent = Intent(this, HomeActivity::class.java)
-                        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                        startActivity(intent)
+
+                        if (!clan.platioClanarinu) {
+                            prikaziPopupClanarine(clan.id)
+                        } else {
+                            val intent = Intent(this, HomeActivity::class.java)
+                            intent.flags =
+                                Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+
+                            startActivity(intent)
+                        }
+
                     } else {
-                        Toast.makeText(this, "Krivi email ili lozinka", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(
+                            this,
+                            "Krivi email ili lozinka",
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
                 }
             }
@@ -67,5 +87,60 @@ class MainActivity : AppCompatActivity() {
         btnRegistracija.setOnClickListener {
             startActivity(Intent(this, RegistracijaClanova::class.java))
         }
+    }
+
+    private fun prikaziPopupClanarine(clanId: Int) {
+
+        val prikaz = layoutInflater.inflate(
+            R.layout.dialog_clanarina_nije_placena,
+            null
+        )
+
+        val btnKasnije =
+            prikaz.findViewById<MaterialButton>(R.id.btn_kasnije)
+
+        val btnPlati =
+            prikaz.findViewById<MaterialButton>(R.id.btn_plati_clanarinu)
+
+        val dialog = AlertDialog.Builder(this)
+            .setView(prikaz)
+            .create()
+
+        dialog.setCancelable(false)
+
+        dialog.setOnShowListener {
+            dialog.window?.setBackgroundDrawableResource(
+                android.R.color.transparent
+            )
+        }
+
+        btnKasnije.setOnClickListener {
+            dialog.dismiss()
+
+            val intent = Intent(this, HomeActivity::class.java)
+            intent.flags =
+                Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+
+            startActivity(intent)
+        }
+
+        btnPlati.setOnClickListener {
+            dialog.dismiss()
+
+            val intent = Intent(this, ClanarinaActivity::class.java)
+            intent.putExtra("clan_id", clanId)
+
+            startActivity(intent)
+        }
+
+        dialog.show()
+
+        val sirina =
+            (resources.displayMetrics.widthPixels * 0.85).toInt()
+
+        dialog.window?.setLayout(
+            sirina,
+            WindowManager.LayoutParams.WRAP_CONTENT
+        )
     }
 }
