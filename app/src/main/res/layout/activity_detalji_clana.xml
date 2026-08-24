@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
@@ -51,10 +52,12 @@
                         android:layout_height="wrap_content"
                         android:hint="Ime"
                         android:layout_marginBottom="8dp">
+
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/et_ime"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"/>
+
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <com.google.android.material.textfield.TextInputLayout
@@ -62,10 +65,12 @@
                         android:layout_height="wrap_content"
                         android:hint="Prezime"
                         android:layout_marginBottom="8dp">
+
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/et_prezime"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"/>
+
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <com.google.android.material.textfield.TextInputLayout
@@ -73,12 +78,14 @@
                         android:layout_height="wrap_content"
                         android:hint="OIB"
                         android:layout_marginBottom="8dp">
+
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/et_oib"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:inputType="number"
                             android:maxLength="11"/>
+
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <com.google.android.material.textfield.TextInputLayout
@@ -86,10 +93,12 @@
                         android:layout_height="wrap_content"
                         android:hint="Datum rođenja (DD.MM.GGGG)"
                         android:layout_marginBottom="8dp">
+
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/et_datum"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"/>
+
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <com.google.android.material.textfield.TextInputLayout
@@ -97,11 +106,13 @@
                         android:layout_height="wrap_content"
                         android:hint="Broj telefona"
                         android:layout_marginBottom="8dp">
+
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/et_telefon"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:inputType="phone"/>
+
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <com.google.android.material.textfield.TextInputLayout
@@ -109,11 +120,13 @@
                         android:layout_height="wrap_content"
                         android:hint="Email"
                         android:layout_marginBottom="8dp">
+
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/et_email"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:inputType="textEmailAddress"/>
+
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <com.google.android.material.textfield.TextInputLayout
@@ -122,11 +135,13 @@
                         android:layout_height="wrap_content"
                         android:hint="Nova lozinka (ostavi prazno za ne mijenjati)"
                         android:layout_marginBottom="8dp">
+
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/et_lozinka"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:inputType="textPassword"/>
+
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <com.google.android.material.textfield.TextInputLayout
@@ -134,6 +149,7 @@
                         android:layout_height="wrap_content"
                         android:hint="Opis člana"
                         android:layout_marginBottom="8dp">
+
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/et_opis"
                             android:layout_width="match_parent"
@@ -141,6 +157,7 @@
                             android:minLines="3"
                             android:gravity="top"
                             android:inputType="textMultiLine"/>
+
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <TextView
@@ -186,9 +203,12 @@
                         android:text="Platio članarinu"/>
 
                 </LinearLayout>
+
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Kartica članarine -->
+
+            <!-- ČLANARINA -->
+
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/card_clanarina"
                 android:layout_width="match_parent"
@@ -239,11 +259,13 @@
                         android:layout_height="wrap_content"
                         android:hint="Iznos (€)"
                         android:layout_marginBottom="8dp">
+
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/et_iznos"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:inputType="numberDecimal"/>
+
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <com.google.android.material.textfield.TextInputLayout
@@ -251,10 +273,12 @@
                         android:layout_height="wrap_content"
                         android:hint="Datum uplate (DD.MM.GGGG)"
                         android:layout_marginBottom="8dp">
+
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/et_datum_uplate"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"/>
+
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <com.google.android.material.textfield.TextInputLayout
@@ -262,10 +286,12 @@
                         android:layout_height="wrap_content"
                         android:hint="Datum isteka (DD.MM.GGGG)"
                         android:layout_marginBottom="8dp">
+
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/et_datum_isteka"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"/>
+
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <CheckBox
@@ -274,8 +300,34 @@
                         android:layout_height="wrap_content"
                         android:text="Platio članarinu"/>
 
+
+                    <!-- NAČIN PLAĆANJA -->
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Način plaćanja"
+                        android:textSize="14sp"
+                        android:textColor="@color/text_gray"
+                        android:layout_marginTop="16dp"
+                        android:layout_marginBottom="4dp"/>
+
+                    <Spinner
+                        android:id="@+id/spinner_nacin_placanja"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="16dp"/>
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_plati_clanarinu"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="PLATI / OBNOVI ČLANARINU"/>
+
                 </LinearLayout>
+
             </com.google.android.material.card.MaterialCardView>
+
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_spremi"
@@ -292,5 +344,7 @@
                 android:backgroundTint="#F44336"/>
 
         </LinearLayout>
+
     </ScrollView>
+
 </LinearLayout>

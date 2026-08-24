@@ -2,10 +2,15 @@ package com.example.evidencijaclanova
 
 import android.os.Bundle
 import android.view.View
+import android.view.WindowManager
 import android.widget.ArrayAdapter
+import android.widget.EditText
 import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
+import android.text.Editable
+import android.text.TextWatcher
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.google.android.material.appbar.MaterialToolbar
@@ -79,7 +84,9 @@ class ClanarinaActivity : AppCompatActivity() {
         val tvGodOpis = findViewById<TextView>(R.id.tv_god_opis)
 
         // Postavi naslov
-        toolbar.title = if (isOwn) "Moja članarina" else "Članarina — ${clan.ime} ${clan.prezime}"
+        toolbar.title =
+            if (isOwn) "Moja članarina"
+            else "Članarina — ${clan.ime} ${clan.prezime}"
 
         fun osvjeziStatus() {
             clan = db.clanDao().getById(clanId) ?: return
@@ -89,39 +96,58 @@ class ClanarinaActivity : AppCompatActivity() {
                 statusTekst.startsWith("✅") -> {
                     tvStatusEmoji.text = "✅"
                     tvStatusTekst.text = "Plaćeno"
-                    tvStatusTekst.setTextColor(ContextCompat.getColor(this, R.color.active_green))
+                    tvStatusTekst.setTextColor(
+                        ContextCompat.getColor(this, R.color.active_green)
+                    )
                 }
+
                 statusTekst.startsWith("⚠️") -> {
                     tvStatusEmoji.text = "⚠️"
                     tvStatusTekst.text = "Ističe uskoro"
                     tvStatusTekst.setTextColor(0xFFFF8F00.toInt())
                 }
+
                 statusTekst.startsWith("❌") -> {
                     tvStatusEmoji.text = "❌"
                     tvStatusTekst.text = "Isteklo"
-                    tvStatusTekst.setTextColor(ContextCompat.getColor(this, R.color.inactive_red))
+                    tvStatusTekst.setTextColor(
+                        ContextCompat.getColor(this, R.color.inactive_red)
+                    )
                 }
+
                 else -> {
                     tvStatusEmoji.text = "💔"
                     tvStatusTekst.text = "Nije platio"
-                    tvStatusTekst.setTextColor(ContextCompat.getColor(this, R.color.inactive_red))
+                    tvStatusTekst.setTextColor(
+                        ContextCompat.getColor(this, R.color.inactive_red)
+                    )
                 }
             }
 
-            tvPlanNaziv.text = clan.tipClanarine.replaceFirstChar { it.uppercase() } + " članarina"
+            tvPlanNaziv.text =
+                clan.tipClanarine.replaceFirstChar { it.uppercase() } + " članarina"
 
             // Dani ostalo
             if (clan.platioClanarinu && clan.datumIsteka.isNotEmpty()) {
                 try {
                     val istekDatum = sdf.parse(clan.datumIsteka)
-                    val razlikaDana = ((istekDatum!!.time - Date().time) / (1000 * 60 * 60 * 24)).toInt()
+
+                    val razlikaDana =
+                        ((istekDatum!!.time - Date().time) /
+                                (1000 * 60 * 60 * 24)).toInt()
+
                     tvDanaOstalo.text = when {
-                        razlikaDana > 0 -> "Još $razlikaDana dana (do ${clan.datumIsteka})"
-                        else -> "Isteklo ${clan.datumIsteka}"
+                        razlikaDana > 0 ->
+                            "Još $razlikaDana dana (do ${clan.datumIsteka})"
+
+                        else ->
+                            "Isteklo ${clan.datumIsteka}"
                     }
+
                 } catch (e: Exception) {
                     tvDanaOstalo.text = "Plaćeno"
                 }
+
             } else if (!clan.platioClanarinu) {
                 tvDanaOstalo.text = "Članarina nije aktivna"
             } else {
@@ -129,30 +155,55 @@ class ClanarinaActivity : AppCompatActivity() {
             }
 
             // Detalji
-            tvIznos.text = "💶 Iznos: ${if (clan.iznosClanarine > 0) "${clan.iznosClanarine}€" else "—"}"
-            tvDatumUplate.text = "📅 Datum uplate: ${clan.datumUplate.ifEmpty { "—" }}"
-            tvDatumIsteka.text = "⏳ Datum isteka: ${clan.datumIsteka.ifEmpty { "—" }}"
-            tvNacinPlacanja.text = "💳 Način plaćanja: ${clan.nacinPlacanja}"
+            tvIznos.text =
+                "💶 Iznos: ${if (clan.iznosClanarine > 0) "${clan.iznosClanarine}€" else "—"}"
+
+            tvDatumUplate.text =
+                "📅 Datum uplate: ${clan.datumUplate.ifEmpty { "—" }}"
+
+            tvDatumIsteka.text =
+                "⏳ Datum isteka: ${clan.datumIsteka.ifEmpty { "—" }}"
+
+            tvNacinPlacanja.text =
+                "💳 Način plaćanja: ${clan.nacinPlacanja}"
         }
 
         osvjeziStatus()
 
         // Odabir plana — vidljiv vlasniku i adminu
         if (isOwn || isAdmin) {
+
             layoutPlanovi.visibility = View.VISIBLE
             cardDetalji.visibility = View.VISIBLE
             layoutNacinPlacanja.visibility = View.VISIBLE
             btnPlati.visibility = View.VISIBLE
-            if (clan.platioClanarinu) btnPonisti.visibility = View.VISIBLE
+
+            if (clan.platioClanarinu) {
+                btnPonisti.visibility = View.VISIBLE
+            }
 
             selectedPlan = clan.tipClanarine
 
             // Spinner za način plaćanja (vlastiti + admin)
             val nacinOptionsMember = listOf("Gotovina", "Kartica")
-            val nacinMemberAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, nacinOptionsMember)
-            nacinMemberAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+
+            val nacinMemberAdapter =
+                ArrayAdapter(
+                    this,
+                    android.R.layout.simple_spinner_item,
+                    nacinOptionsMember
+                )
+
+            nacinMemberAdapter.setDropDownViewResource(
+                android.R.layout.simple_spinner_dropdown_item
+            )
+
             spinnerNacinMember.adapter = nacinMemberAdapter
-            val memberNacinIndex = nacinOptionsMember.indexOf(clan.nacinPlacanja).takeIf { it >= 0 } ?: 0
+
+            val memberNacinIndex =
+                nacinOptionsMember.indexOf(clan.nacinPlacanja)
+                    .takeIf { it >= 0 } ?: 0
+
             spinnerNacinMember.setSelection(memberNacinIndex)
 
             val colorSelected = ContextCompat.getColor(this, R.color.primary)
@@ -163,7 +214,10 @@ class ClanarinaActivity : AppCompatActivity() {
             val colorPrimary = ContextCompat.getColor(this, R.color.primary)
 
             fun bojajTekstove(
-                naziv: TextView, cijena: TextView, opis: TextView, selected: Boolean
+                naziv: TextView,
+                cijena: TextView,
+                opis: TextView,
+                selected: Boolean
             ) {
                 if (selected) {
                     naziv.setTextColor(colorWhite)
@@ -177,61 +231,153 @@ class ClanarinaActivity : AppCompatActivity() {
             }
 
             fun osvjeziPlanKartice() {
-                cardPlanMj.setCardBackgroundColor(if (selectedPlan == "mjesečna") colorSelected else colorDefault)
-                cardPlanPol.setCardBackgroundColor(if (selectedPlan == "polugodišnja") colorSelected else colorDefault)
-                cardPlanGod.setCardBackgroundColor(if (selectedPlan == "godišnja") colorSelected else colorDefault)
 
-                bojajTekstove(tvMjNaziv, tvMjCijena, tvMjOpis, selectedPlan == "mjesečna")
-                bojajTekstove(tvPolNaziv, tvPolCijena, tvPolOpis, selectedPlan == "polugodišnja")
-                bojajTekstove(tvGodNaziv, tvGodCijena, tvGodOpis, selectedPlan == "godišnja")
+                cardPlanMj.setCardBackgroundColor(
+                    if (selectedPlan == "mjesečna") colorSelected else colorDefault
+                )
+
+                cardPlanPol.setCardBackgroundColor(
+                    if (selectedPlan == "polugodišnja") colorSelected else colorDefault
+                )
+
+                cardPlanGod.setCardBackgroundColor(
+                    if (selectedPlan == "godišnja") colorSelected else colorDefault
+                )
+
+                bojajTekstove(
+                    tvMjNaziv,
+                    tvMjCijena,
+                    tvMjOpis,
+                    selectedPlan == "mjesečna"
+                )
+
+                bojajTekstove(
+                    tvPolNaziv,
+                    tvPolCijena,
+                    tvPolOpis,
+                    selectedPlan == "polugodišnja"
+                )
+
+                bojajTekstove(
+                    tvGodNaziv,
+                    tvGodCijena,
+                    tvGodOpis,
+                    selectedPlan == "godišnja"
+                )
             }
+
             osvjeziPlanKartice()
 
-            cardPlanMj.setOnClickListener { selectedPlan = "mjesečna"; osvjeziPlanKartice() }
-            cardPlanPol.setOnClickListener { selectedPlan = "polugodišnja"; osvjeziPlanKartice() }
-            cardPlanGod.setOnClickListener { selectedPlan = "godišnja"; osvjeziPlanKartice() }
+            cardPlanMj.setOnClickListener {
+                selectedPlan = "mjesečna"
+                osvjeziPlanKartice()
+            }
+
+            cardPlanPol.setOnClickListener {
+                selectedPlan = "polugodišnja"
+                osvjeziPlanKartice()
+            }
+
+            cardPlanGod.setOnClickListener {
+                selectedPlan = "godišnja"
+                osvjeziPlanKartice()
+            }
 
             btnPlati.setOnClickListener {
-                val calendar = Calendar.getInstance()
-                val iznos = when (selectedPlan) {
-                    "mjesečna" -> { calendar.add(Calendar.MONTH, 1); CIJENA_MJESECNA }
-                    "polugodišnja" -> { calendar.add(Calendar.MONTH, 6); CIJENA_POLUGODISNJA }
-                    else -> { calendar.add(Calendar.YEAR, 1); CIJENA_GODISNJA }
-                }
-                val datumUplate = sdf.format(Date())
-                val datumIsteka = sdf.format(calendar.time)
-                val odabraniNacin = spinnerNacinMember.selectedItem.toString()
 
-                val updated = clan.copy(
-                    platioClanarinu = true,
-                    tipClanarine = selectedPlan,
-                    iznosClanarine = iznos,
-                    datumUplate = datumUplate,
-                    datumIsteka = datumIsteka,
-                    nacinPlacanja = odabraniNacin
-                )
-                db.clanDao().update(updated)
-                if (isOwn) Session.currentClan = updated
-                Toast.makeText(this, "✅ Uplata evidentirana!", Toast.LENGTH_SHORT).show()
-                btnPonisti.visibility = View.VISIBLE
-                osvjeziStatus()
+                val odabraniNacin =
+                    spinnerNacinMember.selectedItem.toString()
+
+                if (odabraniNacin == "Kartica") {
+
+                    prikaziProzorPlacanjaKarticom(
+                        clanId = clanId,
+                        isOwn = isOwn,
+                        onUplataEvidentirana = {
+                            btnPonisti.visibility = View.VISIBLE
+                            osvjeziStatus()
+                        }
+                    )
+
+                } else {
+
+                    val calendar = Calendar.getInstance()
+
+                    val iznos = when (selectedPlan) {
+
+                        "mjesečna" -> {
+                            calendar.add(Calendar.MONTH, 1)
+                            CIJENA_MJESECNA
+                        }
+
+                        "polugodišnja" -> {
+                            calendar.add(Calendar.MONTH, 6)
+                            CIJENA_POLUGODISNJA
+                        }
+
+                        else -> {
+                            calendar.add(Calendar.YEAR, 1)
+                            CIJENA_GODISNJA
+                        }
+                    }
+
+                    val datumUplate = sdf.format(Date())
+                    val datumIsteka = sdf.format(calendar.time)
+
+                    val updated = clan.copy(
+                        platioClanarinu = true,
+                        tipClanarine = selectedPlan,
+                        iznosClanarine = iznos,
+                        datumUplate = datumUplate,
+                        datumIsteka = datumIsteka,
+                        nacinPlacanja = odabraniNacin
+                    )
+
+                    db.clanDao().update(updated)
+
+                    if (isOwn) {
+                        Session.currentClan = updated
+                    }
+
+                    Toast.makeText(
+                        this,
+                        "✅ Uplata evidentirana!",
+                        Toast.LENGTH_SHORT
+                    ).show()
+
+                    btnPonisti.visibility = View.VISIBLE
+                    osvjeziStatus()
+                }
             }
 
             btnPonisti.setOnClickListener {
+
                 val updated = clan.copy(
                     platioClanarinu = false,
                     datumUplate = "",
                     datumIsteka = "",
                     iznosClanarine = 0.0
                 )
+
                 db.clanDao().update(updated)
-                if (isOwn) Session.currentClan = updated
-                Toast.makeText(this, "Uplata poništena", Toast.LENGTH_SHORT).show()
+
+                if (isOwn) {
+                    Session.currentClan = updated
+                }
+
+                Toast.makeText(
+                    this,
+                    "Uplata poništena",
+                    Toast.LENGTH_SHORT
+                ).show()
+
                 btnPonisti.visibility = View.GONE
+
                 osvjeziStatus()
             }
 
         } else {
+
             // Tuđi profil — samo status i plan, bez detalja i gumba
             layoutPlanovi.visibility = View.GONE
             cardDetalji.visibility = View.GONE
@@ -241,29 +387,366 @@ class ClanarinaActivity : AppCompatActivity() {
 
         // Admin: ručno uređivanje
         if (isAdmin) {
+
             cardAdmin.visibility = View.VISIBLE
 
-            val nacinOptions = listOf("Gotovina", "Kartica", "Bankovni transfer")
-            val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, nacinOptions)
-            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            val nacinOptions =
+                listOf(
+                    "Gotovina",
+                    "Kartica",
+                    "Bankovni transfer"
+                )
+
+            val adapter =
+                ArrayAdapter(
+                    this,
+                    android.R.layout.simple_spinner_item,
+                    nacinOptions
+                )
+
+            adapter.setDropDownViewResource(
+                android.R.layout.simple_spinner_dropdown_item
+            )
+
             spinnerNacin.adapter = adapter
-            val nacinIndex = nacinOptions.indexOf(clan.nacinPlacanja).takeIf { it >= 0 } ?: 0
+
+            val nacinIndex =
+                nacinOptions.indexOf(clan.nacinPlacanja)
+                    .takeIf { it >= 0 } ?: 0
+
             spinnerNacin.setSelection(nacinIndex)
 
             etAdminDatumUplate.setText(clan.datumUplate)
             etAdminDatumIsteka.setText(clan.datumIsteka)
 
             btnAdminSpremi.setOnClickListener {
+
                 val updated = clan.copy(
-                    nacinPlacanja = spinnerNacin.selectedItem.toString(),
-                    datumUplate = etAdminDatumUplate.text.toString().trim(),
-                    datumIsteka = etAdminDatumIsteka.text.toString().trim()
+                    nacinPlacanja =
+                        spinnerNacin.selectedItem.toString(),
+
+                    datumUplate =
+                        etAdminDatumUplate.text.toString().trim(),
+
+                    datumIsteka =
+                        etAdminDatumIsteka.text.toString().trim()
                 )
+
                 db.clanDao().update(updated)
-                Toast.makeText(this, "Izmjene spremljene", Toast.LENGTH_SHORT).show()
+
+                Toast.makeText(
+                    this,
+                    "Izmjene spremljene",
+                    Toast.LENGTH_SHORT
+                ).show()
+
                 osvjeziStatus()
             }
         }
+    }
+
+    private fun prikaziProzorPlacanjaKarticom(
+        clanId: Int,
+        isOwn: Boolean,
+        onUplataEvidentirana: () -> Unit
+    ) {
+
+        val prikaz =
+            layoutInflater.inflate(
+                R.layout.dialog_placanje_karticom,
+                null
+            )
+
+        val etIme =
+            prikaz.findViewById<EditText>(
+                R.id.etImeNaKartici
+            )
+
+        val etBroj =
+            prikaz.findViewById<EditText>(
+                R.id.etBrojKartice
+            )
+
+        val etDatum =
+            prikaz.findViewById<EditText>(
+                R.id.etDatumIsteka
+            )
+
+        val etCvv =
+            prikaz.findViewById<EditText>(
+                R.id.etCvv
+            )
+
+
+        // Automatsko formatiranje broja kartice
+        etBroj.addTextChangedListener(
+            object : TextWatcher {
+
+                private var mijenjam = false
+
+                override fun beforeTextChanged(
+                    s: CharSequence?,
+                    start: Int,
+                    count: Int,
+                    after: Int
+                ) {
+                }
+
+                override fun onTextChanged(
+                    s: CharSequence?,
+                    start: Int,
+                    before: Int,
+                    count: Int
+                ) {
+                }
+
+                override fun afterTextChanged(
+                    s: Editable?
+                ) {
+
+                    if (mijenjam) return
+
+                    mijenjam = true
+
+                    val brojevi =
+                        s.toString()
+                            .replace(" ", "")
+                            .filter { it.isDigit() }
+                            .take(16)
+
+                    val formatirano =
+                        brojevi
+                            .chunked(4)
+                            .joinToString(" ")
+
+                    etBroj.setText(formatirano)
+
+                    etBroj.setSelection(
+                        formatirano.length
+                    )
+
+                    mijenjam = false
+                }
+            }
+        )
+
+
+        // Automatsko formatiranje datuma isteka
+        etDatum.addTextChangedListener(
+            object : TextWatcher {
+
+                private var mijenjam = false
+
+                override fun beforeTextChanged(
+                    s: CharSequence?,
+                    start: Int,
+                    count: Int,
+                    after: Int
+                ) {
+                }
+
+                override fun onTextChanged(
+                    s: CharSequence?,
+                    start: Int,
+                    before: Int,
+                    count: Int
+                ) {
+                }
+
+                override fun afterTextChanged(
+                    s: Editable?
+                ) {
+
+                    if (mijenjam) return
+
+                    mijenjam = true
+
+                    val brojevi =
+                        s.toString()
+                            .replace("/", "")
+                            .filter { it.isDigit() }
+                            .take(4)
+
+                    val formatirano =
+                        if (brojevi.length > 2) {
+
+                            brojevi.substring(0, 2) +
+                                    "/" +
+                                    brojevi.substring(2)
+
+                        } else {
+
+                            brojevi
+                        }
+
+                    etDatum.setText(formatirano)
+
+                    etDatum.setSelection(
+                        formatirano.length
+                    )
+
+                    mijenjam = false
+                }
+            }
+        )
+
+
+        val dialog =
+            AlertDialog.Builder(this)
+                .setView(prikaz)
+                .setNegativeButton(
+                    "Odustani",
+                    null
+                )
+                .setPositiveButton(
+                    "Plati",
+                    null
+                )
+                .create()
+
+        dialog.setOnShowListener {
+
+            dialog.window
+                ?.setBackgroundDrawableResource(
+                    android.R.color.transparent
+                )
+
+            dialog.getButton(
+                AlertDialog.BUTTON_POSITIVE
+            ).setOnClickListener {
+
+                val ime =
+                    etIme.text
+                        .toString()
+                        .trim()
+
+                // Brišemo razmake prije provjere
+                val broj =
+                    etBroj.text
+                        .toString()
+                        .replace(" ", "")
+                        .trim()
+
+                val datum =
+                    etDatum.text
+                        .toString()
+                        .trim()
+
+                val cvv =
+                    etCvv.text
+                        .toString()
+                        .trim()
+
+                when {
+
+                    ime.isEmpty() -> {
+                        etIme.error =
+                            "Unesite ime i prezime"
+                    }
+
+                    broj.length != 16 -> {
+                        etBroj.error =
+                            "Broj kartice mora imati 16 znamenki"
+                    }
+
+                    datum.length != 5 ||
+                            !datum.contains("/") -> {
+
+                        etDatum.error =
+                            "Unesite datum u obliku MM/GG"
+                    }
+
+                    cvv.length != 3 -> {
+                        etCvv.error =
+                            "CVV mora imati 3 znamenke"
+                    }
+
+                    else -> {
+
+                        val clan =
+                            db.clanDao()
+                                .getById(clanId)
+                                ?: return@setOnClickListener
+
+                        val calendar =
+                            Calendar.getInstance()
+
+                        val iznos =
+                            when (selectedPlan) {
+
+                                "mjesečna" -> {
+                                    calendar.add(
+                                        Calendar.MONTH,
+                                        1
+                                    )
+                                    CIJENA_MJESECNA
+                                }
+
+                                "polugodišnja" -> {
+                                    calendar.add(
+                                        Calendar.MONTH,
+                                        6
+                                    )
+                                    CIJENA_POLUGODISNJA
+                                }
+
+                                else -> {
+                                    calendar.add(
+                                        Calendar.YEAR,
+                                        1
+                                    )
+                                    CIJENA_GODISNJA
+                                }
+                            }
+
+                        val datumUplate =
+                            sdf.format(Date())
+
+                        val datumIsteka =
+                            sdf.format(calendar.time)
+
+                        val updated =
+                            clan.copy(
+                                platioClanarinu = true,
+                                tipClanarine = selectedPlan,
+                                iznosClanarine = iznos,
+                                datumUplate = datumUplate,
+                                datumIsteka = datumIsteka,
+                                nacinPlacanja = "Kartica"
+                            )
+
+                        db.clanDao().update(updated)
+
+                        if (isOwn) {
+                            Session.currentClan = updated
+                        }
+
+                        dialog.dismiss()
+
+                        Toast.makeText(
+                            this,
+                            "✅ Uplata evidentirana!",
+                            Toast.LENGTH_SHORT
+                        ).show()
+
+                        onUplataEvidentirana()
+                    }
+                }
+            }
+        }
+
+        dialog.show()
+
+        val sirina =
+            (
+                    resources.displayMetrics.widthPixels *
+                            0.85
+                    ).toInt()
+
+        dialog.window?.setLayout(
+            sirina,
+            WindowManager.LayoutParams.WRAP_CONTENT
+        )
     }
 
     override fun onSupportNavigateUp(): Boolean {
