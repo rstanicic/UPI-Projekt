@@ -185,7 +185,7 @@ class ClanarinaActivity : AppCompatActivity() {
             selectedPlan = clan.tipClanarine
 
             // Spinner za način plaćanja (vlastiti + admin)
-            val nacinOptionsMember = listOf("Gotovina", "Kartica")
+            val nacinOptionsMember = listOf("Gotovina")
 
             val nacinMemberAdapter =
                 ArrayAdapter(
