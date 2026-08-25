@@ -23,7 +23,7 @@
         android:text="Članarina nije plaćena"
         android:textSize="21sp"
         android:textStyle="bold"
-        android:textColor="#212121"
+        android:textColor="@color/text_dark"
         android:gravity="center"
         android:layout_marginBottom="8dp" />
 
@@ -32,7 +32,7 @@
         android:layout_height="wrap_content"
         android:text="Odaberi plan i izvrši uplatu kako bi aktivirao članarinu."
         android:textSize="14sp"
-        android:textColor="#555555"
+        android:textColor="@color/text_gray"
         android:gravity="center"
         android:layout_marginBottom="22dp" />
 
@@ -49,8 +49,8 @@
             android:layout_weight="1"
             android:layout_marginEnd="6dp"
             android:text="Kasnije"
-            android:textColor="#212121"
-            app:strokeColor="#BDBDBD" />
+            android:textColor="@color/text_dark"
+            app:strokeColor="@color/text_gray" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_plati_clanarinu"
