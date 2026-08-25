@@ -100,12 +100,14 @@ class HomeActivity : AppCompatActivity() {
 
         val sviClanovi = db.clanDao().getAll()
         val ukupno = sviClanovi.size
-        val aktivnih = sviClanovi.count { it.aktivan }
+        val aktivnih = sviClanovi.count { clan ->
+            val (status, _) = ClanAdapter.izracunajStatus(clan)
+            clan.aktivan && (status.startsWith("✅") || status.startsWith("⚠️"))
+        }
         val neaktivnih = ukupno - aktivnih
-        val platili = sviClanovi.count { it.platioClanarinu }
 
         tvUkupno.text = "👥 Ukupno članova: $ukupno"
-        tvAktivni.text = "✅ Aktivnih: $aktivnih  |  ❌ Neaktivnih: $neaktivnih  |  💰 Platili: $platili"
+        tvAktivni.text = "✅ Aktivnih: $aktivnih  |  ❌ Neaktivnih: $neaktivnih"
 
         // Upozorenje za neplaćene / koji uskoro ističu
         val problematicni = sviClanovi.count { clan ->

@@ -18,7 +18,7 @@
             android:layout_height="?attr/actionBarSize"
             android:background="@color/primary"
             app:title="Postavke"
-            app:titleTextColor="@color/white"
+            app:titleTextColor="#FFFFFF"
             app:menu="@menu/toolbar_menu"/>
 
         <LinearLayout

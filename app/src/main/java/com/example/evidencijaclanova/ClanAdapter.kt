@@ -50,9 +50,11 @@ class ClanAdapter(
         holder.statusClanarine.text = statusTekst
         holder.statusClanarine.setTextColor(statusBoja)
 
-        // Boja kartice prema aktivnosti (dark mode aware)
+        // Boja kartice: zelena samo ako je aktivan I plaćena/valjana članarina
+        val (status, _) = izracunajStatus(clan)
+        val jeAktivan = clan.aktivan && (status.startsWith("✅") || status.startsWith("⚠️"))
         holder.card.setCardBackgroundColor(
-            if (clan.aktivan) ContextCompat.getColor(context, R.color.active_bg)
+            if (jeAktivan) ContextCompat.getColor(context, R.color.active_bg)
             else ContextCompat.getColor(context, R.color.inactive_bg)
         )
 
@@ -67,8 +69,10 @@ class ClanAdapter(
             holder.aktivan.setOnCheckedChangeListener { _, isChecked ->
                 clan.aktivan = isChecked
                 holder.aktivan.text = if (isChecked) "Aktivan" else "Neaktivan"
+                val (s, _) = izracunajStatus(clan)
+                val aktivan = isChecked && (s.startsWith("✅") || s.startsWith("⚠️"))
                 holder.card.setCardBackgroundColor(
-                    if (isChecked) ContextCompat.getColor(context, R.color.active_bg)
+                    if (aktivan) ContextCompat.getColor(context, R.color.active_bg)
                     else ContextCompat.getColor(context, R.color.inactive_bg)
                 )
                 onStatusChanged(clan)

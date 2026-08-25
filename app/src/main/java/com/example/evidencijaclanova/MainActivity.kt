@@ -127,10 +127,12 @@ class MainActivity : AppCompatActivity() {
         btnPlati.setOnClickListener {
             dialog.dismiss()
 
-            val intent = Intent(this, ClanarinaActivity::class.java)
-            intent.putExtra("clan_id", clanId)
-
-            startActivity(intent)
+            // Otvori HomeActivity + ClanarinaActivity zajedno
+            // da back navigacija vodi na Home, ne na Login
+            val homeIntent = Intent(this, HomeActivity::class.java)
+            val clanarinaIntent = Intent(this, ClanarinaActivity::class.java)
+            clanarinaIntent.putExtra("clan_id", clanId)
+            startActivities(arrayOf(homeIntent, clanarinaIntent))
         }
 
         dialog.show()

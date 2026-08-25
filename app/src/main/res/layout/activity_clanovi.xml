@@ -18,7 +18,7 @@
             android:layout_height="?attr/actionBarSize"
             android:background="@color/primary"
             app:title="Članovi udruge"
-            app:titleTextColor="@color/white"
+            app:titleTextColor="#FFFFFF"
             app:menu="@menu/toolbar_menu"/>
 
         <LinearLayout
@@ -76,15 +76,6 @@
                     app:cornerRadius="8dp"/>
 
             </LinearLayout>
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_nije_platio"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="💔 Nije platio / Ističe"
-                android:layout_marginBottom="8dp"
-                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                app:cornerRadius="8dp"/>
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_dodaj"

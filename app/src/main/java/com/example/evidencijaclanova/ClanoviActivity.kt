@@ -28,7 +28,6 @@ class ClanoviActivity : AppCompatActivity() {
     private lateinit var btnSvi: MaterialButton
     private lateinit var btnAktivni: MaterialButton
     private lateinit var btnNeaktivni: MaterialButton
-    private lateinit var btnNijePlatio: MaterialButton
     private val sviClanovi = mutableListOf<Clan>()
     private val prikazaniClanovi = mutableListOf<Clan>()
     private var trenutniFilter = "svi"
@@ -50,7 +49,6 @@ class ClanoviActivity : AppCompatActivity() {
         btnSvi = findViewById(R.id.btn_svi)
         btnAktivni = findViewById(R.id.btn_aktivni)
         btnNeaktivni = findViewById(R.id.btn_neaktivni)
-        btnNijePlatio = findViewById(R.id.btn_nije_platio)
 
         setSupportActionBar(toolbar)
 
@@ -113,12 +111,6 @@ class ClanoviActivity : AppCompatActivity() {
             postaviAktivniGumb(btnNeaktivni)
             primijeniFilter()
         }
-        btnNijePlatio.setOnClickListener {
-            trenutniFilter = "nije_platio"
-            postaviAktivniGumb(btnNijePlatio)
-            primijeniFilter()
-        }
-
         // Swipe za brisanje — samo za admina
         if (Session.isAdmin) {
             val itemTouchHelper = ItemTouchHelper(object :
@@ -211,7 +203,7 @@ class ClanoviActivity : AppCompatActivity() {
     }
 
     private fun postaviAktivniGumb(aktivni: MaterialButton) {
-        listOf(btnSvi, btnAktivni, btnNeaktivni, btnNijePlatio).forEach { btn ->
+        listOf(btnSvi, btnAktivni, btnNeaktivni).forEach { btn ->
             btn.setBackgroundColor(Color.TRANSPARENT)
             btn.setTextColor(Color.parseColor("#1565C0"))
         }
@@ -223,13 +215,11 @@ class ClanoviActivity : AppCompatActivity() {
         val filtrirani = sviClanovi.filter { clan ->
             val odgovaraPretrazi = "${clan.ime} ${clan.prezime}"
                 .contains(trenutnaPretraga, ignoreCase = true)
+            val (status, _) = ClanAdapter.izracunajStatus(clan)
+            val clanarinskaOk = status.startsWith("✅") || status.startsWith("⚠️")
             val odgovaraFilteru = when (trenutniFilter) {
-                "aktivni" -> clan.aktivan
-                "neaktivni" -> !clan.aktivan
-                "nije_platio" -> {
-                    val (status, _) = ClanAdapter.izracunajStatus(clan)
-                    status.startsWith("💔") || status.startsWith("❌") || status.startsWith("⚠️")
-                }
+                "aktivni" -> clan.aktivan && clanarinskaOk
+                "neaktivni" -> !clan.aktivan || !clanarinskaOk
                 else -> true
             }
             odgovaraPretrazi && odgovaraFilteru
