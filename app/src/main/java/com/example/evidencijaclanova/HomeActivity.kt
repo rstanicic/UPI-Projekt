@@ -44,6 +44,15 @@ class HomeActivity : AppCompatActivity() {
         drawerLayout.addDrawerListener(toggle)
         toggle.syncState()
 
+        // Odjava na dnu drawera
+        findViewById<android.widget.TextView>(R.id.tv_nav_odjava).setOnClickListener {
+            drawerLayout.closeDrawers()
+            Session.odjavi()
+            val intent = Intent(this, MainActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            startActivity(intent)
+        }
+
         toolbar.setOnMenuItemClickListener { item ->
             when (item.itemId) {
                 R.id.action_logout -> {
@@ -62,12 +71,6 @@ class HomeActivity : AppCompatActivity() {
                 R.id.nav_home -> { }
                 R.id.nav_clanovi -> startActivity(Intent(this, ClanoviActivity::class.java))
                 R.id.nav_postavke -> startActivity(Intent(this, PostavkeActivity::class.java))
-                R.id.nav_logout -> {
-                    Session.odjavi()
-                    val intent = Intent(this, MainActivity::class.java)
-                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                    startActivity(intent)
-                }
             }
             drawerLayout.closeDrawers()
             true
@@ -90,7 +93,15 @@ class HomeActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+        osvjeziPozdrav()
         osvjeziStatistiku()
+    }
+
+    private fun osvjeziPozdrav() {
+        val prefs = getSharedPreferences("postavke", MODE_PRIVATE)
+        val logo = prefs.getString("logo_udruge", "🏛️") ?: "🏛️"
+        val naziv = prefs.getString("naziv_udruge", "Moja udruga") ?: "Moja udruga"
+        findViewById<TextView>(R.id.tv_pozdrav).text = "$logo $naziv"
     }
 
     private fun osvjeziStatistiku() {
@@ -101,7 +112,7 @@ class HomeActivity : AppCompatActivity() {
         val sviClanovi = db.clanDao().getAll()
         val ukupno = sviClanovi.size
         val aktivnih = sviClanovi.count { clan ->
-            val (status, _) = ClanAdapter.izracunajStatus(clan)
+            val (status, _) = ClanAdapter.izracunajStatus(clan, this@HomeActivity)
             clan.aktivan && (status.startsWith("✅") || status.startsWith("⚠️"))
         }
         val neaktivnih = ukupno - aktivnih
@@ -111,7 +122,7 @@ class HomeActivity : AppCompatActivity() {
 
         // Upozorenje za neplaćene / koji uskoro ističu
         val problematicni = sviClanovi.count { clan ->
-            val (status, _) = ClanAdapter.izracunajStatus(clan)
+            val (status, _) = ClanAdapter.izracunajStatus(clan, this@HomeActivity)
             status.startsWith("💔") || status.startsWith("❌") || status.startsWith("⚠️")
         }
         if (problematicni > 0) {

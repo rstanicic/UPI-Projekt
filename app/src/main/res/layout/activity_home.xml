@@ -117,11 +117,36 @@
 
     </LinearLayout>
 
-    <com.google.android.material.navigation.NavigationView
-        android:id="@+id/nav_view"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="280dp"
         android:layout_height="match_parent"
         android:layout_gravity="start"
-        app:menu="@menu/drawer_menu"/>
+        android:orientation="vertical"
+        android:background="@color/card">
+
+        <com.google.android.material.navigation.NavigationView
+            android:id="@+id/nav_view"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:background="@color/card"
+            app:menu="@menu/drawer_menu"/>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/text_gray"
+            android:alpha="0.3"/>
+
+        <TextView
+            android:id="@+id/tv_nav_odjava"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Odjava"
+            android:textSize="14sp"
+            android:textColor="@color/inactive_red"
+            android:padding="16dp"/>
+
+    </LinearLayout>
 
 </androidx.drawerlayout.widget.DrawerLayout>

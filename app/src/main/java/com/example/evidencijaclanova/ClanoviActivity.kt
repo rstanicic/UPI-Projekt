@@ -67,6 +67,15 @@ class ClanoviActivity : AppCompatActivity() {
         drawerLayout.addDrawerListener(toggle)
         toggle.syncState()
 
+        // Odjava na dnu drawera
+        findViewById<android.widget.TextView>(R.id.tv_nav_odjava).setOnClickListener {
+            drawerLayout.closeDrawers()
+            Session.odjavi()
+            val intent = Intent(this, MainActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            startActivity(intent)
+        }
+
         // Gumb "Dodaj" samo za admina
         btnDodaj.visibility = if (Session.isAdmin) View.VISIBLE else View.GONE
 
@@ -180,12 +189,6 @@ class ClanoviActivity : AppCompatActivity() {
                 R.id.nav_home -> startActivity(Intent(this, HomeActivity::class.java))
                 R.id.nav_clanovi -> { }
                 R.id.nav_postavke -> startActivity(Intent(this, PostavkeActivity::class.java))
-                R.id.nav_logout -> {
-                    Session.odjavi()
-                    val intent = Intent(this, MainActivity::class.java)
-                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                    startActivity(intent)
-                }
             }
             drawerLayout.closeDrawers()
             true
@@ -215,7 +218,7 @@ class ClanoviActivity : AppCompatActivity() {
         val filtrirani = sviClanovi.filter { clan ->
             val odgovaraPretrazi = "${clan.ime} ${clan.prezime}"
                 .contains(trenutnaPretraga, ignoreCase = true)
-            val (status, _) = ClanAdapter.izracunajStatus(clan)
+            val (status, _) = ClanAdapter.izracunajStatus(clan, this@ClanoviActivity)
             val clanarinskaOk = status.startsWith("✅") || status.startsWith("⚠️")
             val odgovaraFilteru = when (trenutniFilter) {
                 "aktivni" -> clan.aktivan && clanarinskaOk

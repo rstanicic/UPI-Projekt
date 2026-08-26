@@ -11,7 +11,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Evidencija članova"
+        android:text="ClubTrack"
         android:textSize="32sp"
         android:textStyle="bold"
         android:textColor="@color/primary"

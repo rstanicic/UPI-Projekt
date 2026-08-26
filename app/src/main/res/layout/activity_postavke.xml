@@ -21,82 +21,166 @@
             app:titleTextColor="#FFFFFF"
             app:menu="@menu/toolbar_menu"/>
 
-        <LinearLayout
+        <ScrollView
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:padding="24dp">
+            android:layout_weight="1">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Naziv udruge"
-                android:textSize="14sp"
-                android:textColor="@color/text_gray"
-                android:layout_marginBottom="4dp"/>
-
-            <com.google.android.material.textfield.TextInputLayout
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Unesite naziv udruge">
+                android:orientation="vertical"
+                android:padding="24dp">
 
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/et_naziv_udruge"
+                <!-- UDRUGA -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="UDRUGA"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/primary"
+                    android:layout_marginBottom="8dp"/>
+
+                <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Moja udruga"/>
+                    android:hint="Naziv udruge"
+                    android:layout_marginBottom="12dp">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/et_naziv_udruge"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"/>
+                </com.google.android.material.textfield.TextInputLayout>
 
-            </com.google.android.material.textfield.TextInputLayout>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Logo udruge"
+                    android:textSize="13sp"
+                    android:textColor="@color/text_gray"
+                    android:layout_marginBottom="8dp"/>
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Obavijesti"
-                android:textSize="14sp"
-                android:textColor="@color/text_gray"
-                android:layout_marginTop="24dp"
-                android:layout_marginBottom="4dp"/>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="4dp">
 
-            <androidx.appcompat.widget.SwitchCompat
-                android:id="@+id/switch_obavijesti"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:checked="true"
-                android:text="Primaj obavijesti"/>
+                    <TextView android:id="@+id/logo_1" android:layout_width="0dp" android:layout_height="40dp" android:layout_weight="1" android:text="🏛️" android:textSize="22sp" android:gravity="center" android:background="@drawable/pozadina_polja" android:layout_marginEnd="6dp"/>
+                    <TextView android:id="@+id/logo_2" android:layout_width="0dp" android:layout_height="40dp" android:layout_weight="1" android:text="⚽" android:textSize="22sp" android:gravity="center" android:background="@drawable/pozadina_polja" android:layout_marginEnd="6dp"/>
+                    <TextView android:id="@+id/logo_3" android:layout_width="0dp" android:layout_height="40dp" android:layout_weight="1" android:text="🎵" android:textSize="22sp" android:gravity="center" android:background="@drawable/pozadina_polja" android:layout_marginEnd="6dp"/>
+                    <TextView android:id="@+id/logo_4" android:layout_width="0dp" android:layout_height="40dp" android:layout_weight="1" android:text="🤝" android:textSize="22sp" android:gravity="center" android:background="@drawable/pozadina_polja" android:layout_marginEnd="6dp"/>
+                    <TextView android:id="@+id/logo_5" android:layout_width="0dp" android:layout_height="40dp" android:layout_weight="1" android:text="🎭" android:textSize="22sp" android:gravity="center" android:background="@drawable/pozadina_polja" android:layout_marginEnd="6dp"/>
+                    <TextView android:id="@+id/logo_6" android:layout_width="0dp" android:layout_height="40dp" android:layout_weight="1" android:text="🌍" android:textSize="22sp" android:gravity="center" android:background="@drawable/pozadina_polja"/>
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Prikaz neaktivnih članova"
-                android:textSize="14sp"
-                android:textColor="@color/text_gray"
-                android:layout_marginTop="24dp"
-                android:layout_marginBottom="4dp"/>
+                </LinearLayout>
 
-            <androidx.appcompat.widget.SwitchCompat
-                android:id="@+id/switch_neaktivni"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:checked="false"
-                android:text="Prikaži neaktivne članove"/>
+                <TextView
+                    android:id="@+id/tv_odabrani_logo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="12sp"
+                    android:textColor="@color/text_gray"
+                    android:layout_marginBottom="8dp"/>
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Izgled"
-                android:textSize="14sp"
-                android:textColor="@color/text_gray"
-                android:layout_marginTop="24dp"
-                android:layout_marginBottom="4dp"/>
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_spremi_postavke"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Spremi postavke udruge"
+                    android:backgroundTint="@color/primary"
+                    android:layout_marginBottom="24dp"/>
 
-            <androidx.appcompat.widget.SwitchCompat
-                android:id="@+id/switch_dark_mode"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Tamni način rada (Dark mode)"/>
+                <!-- ČLANARINA -->
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/text_gray"
+                    android:alpha="0.2"
+                    android:layout_marginBottom="24dp"/>
 
-        </LinearLayout>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="ČLANARINA"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/primary"
+                    android:layout_marginBottom="8dp"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Upozori X dana prije isteka"
+                    android:textSize="13sp"
+                    android:textColor="@color/text_gray"
+                    android:layout_marginBottom="6dp"/>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="140dp"
+                    android:layout_height="wrap_content"
+                    android:hint="Dana"
+                    android:layout_marginBottom="24dp">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/et_prag_upozorenja"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="number"
+                        android:maxLength="3"/>
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <!-- IZGLED -->
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/text_gray"
+                    android:alpha="0.2"
+                    android:layout_marginBottom="24dp"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="IZGLED"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/primary"
+                    android:layout_marginBottom="8dp"/>
+
+                <androidx.appcompat.widget.SwitchCompat
+                    android:id="@+id/switch_dark_mode"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Tamni način rada (Dark mode)"
+                    android:layout_marginBottom="24dp"/>
+
+                <!-- O APLIKACIJI -->
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/text_gray"
+                    android:alpha="0.2"
+                    android:layout_marginBottom="24dp"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="APLIKACIJA"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/primary"
+                    android:layout_marginBottom="8dp"/>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_o_aplikaciji"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="ℹ️ O aplikaciji"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    app:strokeColor="@color/primary"/>
+
+            </LinearLayout>
+        </ScrollView>
 
         <com.google.android.material.bottomnavigation.BottomNavigationView
             android:id="@+id/bottom_nav"
@@ -107,11 +191,36 @@
 
     </LinearLayout>
 
-    <com.google.android.material.navigation.NavigationView
-        android:id="@+id/nav_view"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="280dp"
         android:layout_height="match_parent"
         android:layout_gravity="start"
-        app:menu="@menu/drawer_menu"/>
+        android:orientation="vertical"
+        android:background="@color/card">
+
+        <com.google.android.material.navigation.NavigationView
+            android:id="@+id/nav_view"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:background="@color/card"
+            app:menu="@menu/drawer_menu"/>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/text_gray"
+            android:alpha="0.3"/>
+
+        <TextView
+            android:id="@+id/tv_nav_odjava"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Odjava"
+            android:textSize="14sp"
+            android:textColor="@color/inactive_red"
+            android:padding="16dp"/>
+
+    </LinearLayout>
 
 </androidx.drawerlayout.widget.DrawerLayout>

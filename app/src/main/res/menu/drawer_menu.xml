@@ -1,20 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <group android:id="@+id/group_nav">
-        <item
-            android:id="@+id/nav_home"
-            android:title="Home"/>
-        <item
-            android:id="@+id/nav_clanovi"
-            android:title="Članovi"/>
-        <item
-            android:id="@+id/nav_postavke"
-            android:title="Postavke"/>
-    </group>
-    <group android:id="@+id/group_logout">
-        <item
-            android:id="@+id/nav_logout"
-            android:title="Odjava"
-            android:orderInCategory="100"/>
-    </group>
+    <item android:id="@+id/nav_home" android:title="Home"/>
+    <item android:id="@+id/nav_clanovi" android:title="Članovi"/>
+    <item android:id="@+id/nav_postavke" android:title="Postavke"/>
 </menu>

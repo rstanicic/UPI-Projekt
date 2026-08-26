@@ -46,12 +46,12 @@ class ClanAdapter(
         }
 
         // Status članarine
-        val (statusTekst, statusBoja) = izracunajStatus(clan)
+        val (statusTekst, statusBoja) = izracunajStatus(clan, context)
         holder.statusClanarine.text = statusTekst
         holder.statusClanarine.setTextColor(statusBoja)
 
         // Boja kartice: zelena samo ako je aktivan I plaćena/valjana članarina
-        val (status, _) = izracunajStatus(clan)
+        val (status, _) = izracunajStatus(clan, context)
         val jeAktivan = clan.aktivan && (status.startsWith("✅") || status.startsWith("⚠️"))
         holder.card.setCardBackgroundColor(
             if (jeAktivan) ContextCompat.getColor(context, R.color.active_bg)
@@ -101,8 +101,13 @@ class ClanAdapter(
     override fun getItemCount(): Int = clanovi.size
 
     companion object {
-        fun izracunajStatus(clan: Clan): Pair<String, Int> {
+        fun izracunajStatus(clan: Clan, context: android.content.Context? = null): Pair<String, Int> {
             if (!clan.platioClanarinu) return Pair("💔 Nije platio", 0xFFE53935.toInt())
+
+            val prag = if (context != null) {
+                context.getSharedPreferences("postavke", android.content.Context.MODE_PRIVATE)
+                    .getInt("prag_upozorenja", 30)
+            } else 30
 
             if (clan.datumIsteka.isNotEmpty()) {
                 return try {
@@ -113,7 +118,7 @@ class ClanAdapter(
                     val razlikaDana = razlikaMs / (1000 * 60 * 60 * 24)
                     when {
                         razlikaDana < 0 -> Pair("❌ Isteklo", 0xFFE53935.toInt())
-                        razlikaDana < 30 -> Pair("⚠️ Ističe za ${razlikaDana}d", 0xFFFF8F00.toInt())
+                        razlikaDana < prag -> Pair("⚠️ Ističe za ${razlikaDana}d", 0xFFFF8F00.toInt())
                         else -> Pair("✅ Plaćeno do ${clan.datumIsteka}", 0xFF43A047.toInt())
                     }
                 } catch (e: Exception) {
