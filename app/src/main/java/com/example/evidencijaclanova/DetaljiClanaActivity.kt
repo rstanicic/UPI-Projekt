@@ -116,8 +116,7 @@ class DetaljiClanaActivity : AppCompatActivity() {
 
         // NAČINI PLAĆANJA
         val naciniPlacanja = listOf(
-            "Kartica",
-            "Gotovina"
+            "Kartica"
         )
 
         val adapterPlacanja = ArrayAdapter(
@@ -197,7 +196,7 @@ class DetaljiClanaActivity : AppCompatActivity() {
 
             if (nacinPlacanja == "Kartica") {
 
-                prikaziProzorPlacanjaKarticom()
+                prikaziProzorPlacanjaKarticom(clanId)
 
             } else {
 
@@ -432,9 +431,9 @@ class DetaljiClanaActivity : AppCompatActivity() {
             spinnerNacinPlacanja.visibility = View.GONE
             btnPlatiClanarinu.visibility = View.GONE
 
-            findViewById<TextInputLayout>(
-                R.id.til_lozinka
-            )?.visibility = View.GONE
+            // Sakrij privatne podatke — OIB i podaci kartice
+            findViewById<TextInputLayout>(R.id.til_oib)?.visibility = View.GONE
+            findViewById<TextInputLayout>(R.id.til_lozinka)?.visibility = View.GONE
 
             btnSpremi.visibility = View.GONE
             btnObrisi.visibility = View.GONE
@@ -443,7 +442,7 @@ class DetaljiClanaActivity : AppCompatActivity() {
 
 
     // PROZOR ZA PLAĆANJE KARTICOM
-    private fun prikaziProzorPlacanjaKarticom() {
+    private fun prikaziProzorPlacanjaKarticom(clanId: Int) {
 
         val prikaz =
             layoutInflater.inflate(
@@ -472,31 +471,21 @@ class DetaljiClanaActivity : AppCompatActivity() {
             )
 
 
+        val btnOdustani = prikaz.findViewById<MaterialButton>(R.id.btn_odustani_kartica)
+        val btnPlatiDialog = prikaz.findViewById<MaterialButton>(R.id.btn_plati_kartica)
+
         val dialog =
             AlertDialog.Builder(this)
                 .setView(prikaz)
-                .setNegativeButton(
-                    "Odustani",
-                    null
-                )
-                .setPositiveButton(
-                    "Plati",
-                    null
-                )
                 .create()
 
+        btnOdustani.setOnClickListener { dialog.dismiss() }
 
         dialog.setOnShowListener {
+            dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+        }
 
-            dialog.window
-                ?.setBackgroundDrawableResource(
-                    android.R.color.transparent
-                )
-
-
-            dialog.getButton(
-                AlertDialog.BUTTON_POSITIVE
-            ).setOnClickListener {
+        btnPlatiDialog.setOnClickListener {
 
 
                 val ime =
@@ -552,17 +541,23 @@ class DetaljiClanaActivity : AppCompatActivity() {
 
 
                     else -> {
-
+                        val maskirani = "**** **** **** ${brojKartice.takeLast(4)}"
+                        val updatedClan = db.clanDao().getById(clanId)
+                        if (updatedClan != null) {
+                            val saved = updatedClan.copy(
+                                nacinPlacanja = "Kartica",
+                                imeNaKartici = ime,
+                                maskiraniBrojKartice = maskirani
+                            )
+                            db.clanDao().update(saved)
+                            if (Session.currentClan?.id == clanId) {
+                                Session.currentClan = saved
+                            }
+                        }
                         dialog.dismiss()
-
-                        Toast.makeText(
-                            this,
-                            "Plaćanje uspješno!",
-                            Toast.LENGTH_SHORT
-                        ).show()
+                        Toast.makeText(this, "✅ Podaci kartice spremljeni!", Toast.LENGTH_SHORT).show()
                     }
                 }
-            }
         }
 
 

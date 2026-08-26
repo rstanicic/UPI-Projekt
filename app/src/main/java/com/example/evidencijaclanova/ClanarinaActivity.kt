@@ -60,6 +60,8 @@ class ClanarinaActivity : AppCompatActivity() {
         val tvDatumUplate = findViewById<TextView>(R.id.tv_datum_uplate)
         val tvDatumIsteka = findViewById<TextView>(R.id.tv_datum_isteka)
         val tvNacinPlacanja = findViewById<TextView>(R.id.tv_nacin_placanja)
+        val tvImeKartice = findViewById<TextView>(R.id.tv_ime_kartice)
+        val tvBrojKartice = findViewById<TextView>(R.id.tv_broj_kartice)
         val btnPlati = findViewById<MaterialButton>(R.id.btn_plati)
         val btnPonisti = findViewById<MaterialButton>(R.id.btn_ponisti)
         val spinnerNacin = findViewById<Spinner>(R.id.spinner_nacin)
@@ -166,6 +168,17 @@ class ClanarinaActivity : AppCompatActivity() {
 
             tvNacinPlacanja.text =
                 "💳 Način plaćanja: ${clan.nacinPlacanja}"
+
+            // Podaci kartice
+            if (clan.nacinPlacanja == "Kartica" && clan.maskiraniBrojKartice.isNotEmpty()) {
+                tvImeKartice.visibility = View.VISIBLE
+                tvBrojKartice.visibility = View.VISIBLE
+                tvImeKartice.text = "👤 Vlasnik: ${clan.imeNaKartici}"
+                tvBrojKartice.text = "🔢 Kartica: ${clan.maskiraniBrojKartice}"
+            } else {
+                tvImeKartice.visibility = View.GONE
+                tvBrojKartice.visibility = View.GONE
+            }
         }
 
         osvjeziStatus()
@@ -175,7 +188,7 @@ class ClanarinaActivity : AppCompatActivity() {
 
             layoutPlanovi.visibility = View.VISIBLE
             cardDetalji.visibility = View.VISIBLE
-            layoutNacinPlacanja.visibility = View.VISIBLE
+            layoutNacinPlacanja.visibility = View.GONE
             btnPlati.visibility = View.VISIBLE
 
             if (clan.platioClanarinu) {
@@ -284,70 +297,14 @@ class ClanarinaActivity : AppCompatActivity() {
             }
 
             btnPlati.setOnClickListener {
-
-                val odabraniNacin =
-                    spinnerNacinMember.selectedItem.toString()
-
-                if (odabraniNacin == "Kartica") {
-
-                    prikaziProzorPlacanjaKarticom(
-                        clanId = clanId,
-                        isOwn = isOwn,
-                        onUplataEvidentirana = {
-                            btnPonisti.visibility = View.VISIBLE
-                            osvjeziStatus()
-                        }
-                    )
-
-                } else {
-
-                    val calendar = Calendar.getInstance()
-
-                    val iznos = when (selectedPlan) {
-
-                        "mjesečna" -> {
-                            calendar.add(Calendar.MONTH, 1)
-                            CIJENA_MJESECNA
-                        }
-
-                        "polugodišnja" -> {
-                            calendar.add(Calendar.MONTH, 6)
-                            CIJENA_POLUGODISNJA
-                        }
-
-                        else -> {
-                            calendar.add(Calendar.YEAR, 1)
-                            CIJENA_GODISNJA
-                        }
+                prikaziProzorPlacanjaKarticom(
+                    clanId = clanId,
+                    isOwn = isOwn,
+                    onUplataEvidentirana = {
+                        btnPonisti.visibility = View.VISIBLE
+                        osvjeziStatus()
                     }
-
-                    val datumUplate = sdf.format(Date())
-                    val datumIsteka = sdf.format(calendar.time)
-
-                    val updated = clan.copy(
-                        platioClanarinu = true,
-                        tipClanarine = selectedPlan,
-                        iznosClanarine = iznos,
-                        datumUplate = datumUplate,
-                        datumIsteka = datumIsteka,
-                        nacinPlacanja = odabraniNacin
-                    )
-
-                    db.clanDao().update(updated)
-
-                    if (isOwn) {
-                        Session.currentClan = updated
-                    }
-
-                    Toast.makeText(
-                        this,
-                        "✅ Uplata evidentirana!",
-                        Toast.LENGTH_SHORT
-                    ).show()
-
-                    btnPonisti.visibility = View.VISIBLE
-                    osvjeziStatus()
-                }
+                )
             }
 
             btnPonisti.setOnClickListener {
@@ -591,29 +548,21 @@ class ClanarinaActivity : AppCompatActivity() {
         )
 
 
+        val btnOdustani = prikaz.findViewById<MaterialButton>(R.id.btn_odustani_kartica)
+        val btnPlatiDialog = prikaz.findViewById<MaterialButton>(R.id.btn_plati_kartica)
+
         val dialog =
             AlertDialog.Builder(this)
                 .setView(prikaz)
-                .setNegativeButton(
-                    "Odustani",
-                    null
-                )
-                .setPositiveButton(
-                    "Plati",
-                    null
-                )
                 .create()
 
+        btnOdustani.setOnClickListener { dialog.dismiss() }
+
         dialog.setOnShowListener {
+            dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+        }
 
-            dialog.window
-                ?.setBackgroundDrawableResource(
-                    android.R.color.transparent
-                )
-
-            dialog.getButton(
-                AlertDialog.BUTTON_POSITIVE
-            ).setOnClickListener {
+        btnPlatiDialog.setOnClickListener {
 
                 val ime =
                     etIme.text
@@ -705,6 +654,8 @@ class ClanarinaActivity : AppCompatActivity() {
                         val datumIsteka =
                             sdf.format(calendar.time)
 
+                        val maskirani = "**** **** **** ${broj.takeLast(4)}"
+
                         val updated =
                             clan.copy(
                                 platioClanarinu = true,
@@ -712,7 +663,9 @@ class ClanarinaActivity : AppCompatActivity() {
                                 iznosClanarine = iznos,
                                 datumUplate = datumUplate,
                                 datumIsteka = datumIsteka,
-                                nacinPlacanja = "Kartica"
+                                nacinPlacanja = "Kartica",
+                                imeNaKartici = ime,
+                                maskiraniBrojKartice = maskirani
                             )
 
                         db.clanDao().update(updated)
@@ -732,7 +685,6 @@ class ClanarinaActivity : AppCompatActivity() {
                         onUplataEvidentirana()
                     }
                 }
-            }
         }
 
         dialog.show()

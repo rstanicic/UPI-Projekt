@@ -22,5 +22,7 @@ data class Clan(
     val iznosClanarine: Double = 0.0,
     val datumUplate: String = "",
     val datumIsteka: String = "",
-    val nacinPlacanja: String = "Gotovina"
+    val nacinPlacanja: String = "Kartica",
+    val imeNaKartici: String = "",
+    val maskiraniBrojKartice: String = ""
 )
